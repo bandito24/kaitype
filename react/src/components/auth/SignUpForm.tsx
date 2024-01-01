@@ -38,7 +38,8 @@ export default function SignUpForm({setErrors}) {
             confirm_password: confirmPasswordRef.current?.value || '',
         }
         try{
-            const response: SignUpResponse = await axiosClient.post('/signup', payload)
+            const axiosResponse = await axiosClient.post('/signup', payload)
+            const response: SignUpResponse = axiosResponse.data;
             setUser(response.user)
             setToken(response.token)
             console.log(response)

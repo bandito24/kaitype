@@ -12,7 +12,7 @@ axiosClient.interceptors.request.use((config)=> {
 
 axiosClient.interceptors.response.use((response)=> {
     console.log('successful axios response')
-    return response.data;
+    return response;
 }, (error)=> {
     const {response} = error;
     if(response.status === 401){

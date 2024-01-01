@@ -13,7 +13,7 @@ class DatabaseSeeder extends Seeder
      * Seed the application's database.
      */
     private array $languages = [
-        'Python', 'Javascript', 'C++', 'Ruby', 'Java', 'Rust', 'Perl', 'SQL'
+        'Python', 'Javascript', 'C++', 'Ruby', 'Java', 'Rust', 'Perl', 'SQL', 'Typescript', 'PHP'
         ];
     public function run(): void
     {

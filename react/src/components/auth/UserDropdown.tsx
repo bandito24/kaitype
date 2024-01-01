@@ -14,7 +14,8 @@ export default function UserDropdown() {
     const {setUser, setToken} = useStateContext();
     const onSignOut = async  ()=> {
         try {
-            const jsonResponse: SignOutResponse = await axiosClient.post('/signout')
+            const axiosResponse = await axiosClient.post('/signout')
+            const jsonResponse: SignOutResponse = axiosResponse.data
             setUser(null)
             setToken(null)
             console.log(jsonResponse)

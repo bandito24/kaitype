@@ -11,4 +11,9 @@ class SubmissionCategory extends Model
     use HasFactory;
 
     protected $guarded = [];
+
+
+    public function submissions(){
+        return $this->hasMany(Submission::class, 'submission_category_id', 'id');
+    }
 }

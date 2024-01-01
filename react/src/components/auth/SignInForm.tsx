@@ -34,7 +34,8 @@ export default function SignInForm({setErrors}) {
         }
         console.log(payload)
         try{
-            const response: SignInResponse = await axiosClient.post('/signin', payload)
+            const axiosResponse = await axiosClient.post('/signin', payload)
+            const response: SignInResponse = axiosResponse.data
             setUser(response.user)
             setToken(response.token)
             console.log(response)
