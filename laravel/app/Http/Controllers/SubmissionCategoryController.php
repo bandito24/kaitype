@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Submission;
 use App\Models\SubmissionCategory;
 use Illuminate\Http\Request;
 
@@ -14,7 +15,6 @@ class SubmissionCategoryController extends Controller
     {
         $categories = SubmissionCategory::withCount('submissions')
             ->orderBy('submissions_count', 'desc')
-            ->limit(10)
             ->get(['name']);
         return response($categories, 200);
     }
@@ -22,9 +22,32 @@ class SubmissionCategoryController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(Request $request)
     {
-        //
+        $attributes = $request->validate([
+            'title' => ['required', 'max: 20'],
+            'description' => ['required', 'max: 255'],
+            'category' => ['required', 'max: 20'],
+            'content' => ['required']
+        ]);
+
+        $userId = auth()->user()->id;
+        $submissionCategoryId = SubmissionCategory::where('name', $attributes['category'])->first()->id;
+
+        $newSubmission = Submission::create([
+            'user_id' => $userId,
+            'submission_category_id' => $submissionCategoryId,
+            'title' => $attributes['title'],
+            'content' => $attributes['content']
+        ]);
+
+        return response([
+            'status' => 'success',
+        ], 200);
+
+
+
+
     }
 
     /**

@@ -17,42 +17,45 @@ import {
     PopoverContent,
     PopoverTrigger,
 } from "@/components/ui/popover"
-import {useEffect} from "react";
+import {useEffect, useRef, useState} from "react";
 import axiosClient from "@/services/axios-client.tsx";
 
-let frameworks: CategoryType[]  = [
 
-]
 type CategoryType = {
     id: number;
     name: string;
     submissions_count: number;
 };
+type SubmissionOption = {
+    value: string,
+    label: string
+}
 
 
 type CatProps = {
     setCategoryValue: React.Dispatch<React.SetStateAction<string>>,
+    setIsCustomCat: React.Dispatch<React.SetStateAction<boolean>>,
     categoryValue: string
 }
 
-export default function CategoryInput({setCategoryValue, categoryValue}: CatProps) {
-    const [open, setOpen] = React.useState(false)
+export default function CategoryInput({setCategoryValue, setIsCustomCat, categoryValue}: CatProps) {
+    const [open, setOpen] = useState(false)
+    const [categoryOptions, setCategoryOptions] = useState<Array<SubmissionOption> | null>(null)
+    const categoryRef = useRef<HTMLInputElement>(null)
     useEffect(() => {
         async function fetchCategories() {
             try{
                 const axiosResponse = await axiosClient.get('/categories')
                 if(axiosResponse.status === 200){
-                    // const categories: CategoryType = axiosResponse.data
-                    // for(key in categories){
-                    //     frameworks.push({'value': categories[key].id, 'label': categories[key].name})
-                    // }
-                    const categories: CategoryType[] = axiosResponse.data;
-                    console.log(axiosResponse.data)
 
-                   frameworks = categories.map(category => ({
-                        value: category.id,
+                    const categories: Array<CategoryType> = axiosResponse.data;
+                    console.log(axiosResponse.data)
+                    const newCategoryOptions: Array<SubmissionOption> = categories.map(category => ({
+                        value: category.name,
                         label: category.name
                     }));
+
+                    setCategoryOptions(newCategoryOptions);
                 }
             } catch(e){
                 console.log(e)
@@ -61,6 +64,16 @@ export default function CategoryInput({setCategoryValue, categoryValue}: CatProp
         fetchCategories()
 
     }, []);
+
+
+
+    function handleCustomCategorySelect(){
+        if(categoryRef.current?.value){
+            setCategoryValue(categoryRef.current?.value)
+            setIsCustomCat(true)
+            setOpen(false)
+        }
+    }
 
 
 
@@ -74,34 +87,41 @@ export default function CategoryInput({setCategoryValue, categoryValue}: CatProp
                     aria-expanded={open}
                     className="w-[200px] justify-between cursor-pointer"
                 >
-                    {categoryValue
-                        ? frameworks.find((framework) => framework.value === categoryValue)?.label
-                        : "Select framework..."}
+                    {categoryValue && categoryOptions ?
+                        categoryValue : "Search categories..." }
+
                     <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50"/>
                 </Button>
             </PopoverTrigger>
             <PopoverContent className="w-[200px] p-0">
                 <Command>
-                    <CommandInput placeholder="Search categories..."/>
-                    <CommandEmpty>No framework found.</CommandEmpty>
-                    {/*<Button> Create New Framework </Button>*/}
+                    <CommandInput placeholder="Search categories..."
+                    ref={categoryRef}
+                    />
+                    <CommandEmpty>No category found.</CommandEmpty>
+                    <CommandEmpty><Button
+                    onClick={()=>handleCustomCategorySelect()}
+                    >Create Category</Button></CommandEmpty>
                     <CommandGroup>
-                        {frameworks.map((framework) => (
+                        {
+                            categoryOptions &&
+                            categoryOptions.map((option) => (
                             <CommandItem
-                                key={framework.value}
-                                value={framework.value}
+                                key={option.value}
+                                value={option.label}
                                 onSelect={(currentValue) => {
-                                    setCategoryValue(currentValue === categoryValue ? "" : currentValue)
+                                    setCategoryValue(currentValue === categoryValue ? '' : currentValue.charAt(0).toUpperCase() + currentValue.slice(1))
+                                    setIsCustomCat(false)
                                     setOpen(false)
                                 }}
                             >
                                 <Check
                                     className={cn(
                                         "mr-2 h-4 w-4",
-                                        categoryValue === framework.value ? "opacity-100" : "opacity-0"
+                                        categoryValue === option.value ? "opacity-100" : "opacity-0"
                                     )}
                                 />
-                                {framework.label}
+                                {option.label}
                             </CommandItem>
                         ))}
                     </CommandGroup>
