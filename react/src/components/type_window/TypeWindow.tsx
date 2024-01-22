@@ -3,6 +3,7 @@ import ActiveTyping from "@/components/type_window/ActiveTyping.tsx";
 import {useEffect, useState} from "react";
 import ProgressTimer from "@/components/type_window/ProgressTimer.tsx";
 import {testObj} from "@/components/utilities/TestObj.tsx";
+import Keyboard from "@/components/type_window/Keyboard.tsx";
 
 type ChallengeProgress = {
     currentIndex: number,
@@ -20,6 +21,9 @@ export default function TypeWindow() {
         totalIndex: 0
     })
     const [inProgress, setInProgress] = useState<boolean>(false)
+    const [inputValue, setInputValue] = useState('')
+    const [activeString, setActiveString] = useState<string>('');
+
 
     const stringObj = testObj;
     const challengeLength = Object.keys(stringObj).length
@@ -48,13 +52,20 @@ export default function TypeWindow() {
                             setChallengeProgression={setChallengeProgression}
                             challenge={challenge}
                             challengeProgression={challengeProgression}
+                            activeString={activeString}
+                            setActiveString={setActiveString}
                             setInProgress={setInProgress}
-
+                            inputValue={inputValue}
+                            setInputValue={setInputValue}
                         />
                     </>
                 }
 
             </div>
+            <Keyboard
+            activeString={activeString}
+            inputValue={inputValue}
+            />
         </>
     )
 }

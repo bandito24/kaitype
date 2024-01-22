@@ -14,8 +14,12 @@ type ActiveTypingProps = {
     setProgressString: React.Dispatch<React.SetStateAction<string>>,
     setChallengeProgression: React.Dispatch<React.SetStateAction<ChallengeProgress>>
     setInProgress: React.Dispatch<React.SetStateAction<boolean>>
+    setInputValue: React.Dispatch<React.SetStateAction<string>>,
+    setActiveString: React.Dispatch<React.SetStateAction<string>>,
+    activeString: string,
     challenge: Challenge
     challengeProgression: ChallengeProgress
+    inputValue: string
 }
 
 export default function ActiveTyping({
@@ -23,16 +27,18 @@ export default function ActiveTyping({
                                          setChallengeProgression,
                                          setInProgress,
                                          challenge,
-                                         challengeProgression
+                                         challengeProgression,
+                                         activeString,
+                                         setActiveString,
+                                         inputValue,
+                                         setInputValue
                                      }: ActiveTypingProps) {
-    const [inputValue, setInputValue] = useState('')
-    const [activeString, setActiveString] = useState<string>('');
+    // const [activeString, setActiveString] = useState<string>('');
     const [initialErrorIndex, setInitialErrorIndex] = useState<number>(-1)
 
 
-
-
     useEffect(() => {
+        console.log('active string ', activeString)
         setProgressString(encodeHtmlEntities(challenge[challengeProgression.currentIndex]))
         setActiveString(challenge[challengeProgression.currentIndex])
     }, [challengeProgression])

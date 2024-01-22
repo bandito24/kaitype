@@ -8,6 +8,14 @@ use Illuminate\Http\Request;
 
 class SubmissionCategoryController extends Controller
 {
+    private function failureResponse(array $errors): \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Foundation\Application|\Illuminate\Http\Response
+    {
+        return response([
+            'status' => 'failure',
+            'errors' => $errors,
+        ], 422);
+    }
+
     /**
      * Display a listing of the resource.
      */
@@ -28,11 +36,28 @@ class SubmissionCategoryController extends Controller
             'title' => ['required', 'max: 20'],
             'description' => ['required', 'max: 255'],
             'category' => ['required', 'max: 20'],
-            'content' => ['required']
+            'content' => ['required'],
+            'isCustomCategory' => ['boolean']
         ]);
 
         $userId = auth()->user()->id;
-        $submissionCategoryId = SubmissionCategory::where('name', $attributes['category'])->first()->id;
+        $submissionCategory = SubmissionCategory::where('name', $attributes['category'])->first();
+
+
+        if($attributes['isCustomCategory']){
+            if($submissionCategory) return $this->failureResponse(['Creation Failure', ['This Category Already Exists']]);
+            $newCategory = SubmissionCategory::create([
+                'name' => $attributes['category'],
+                'default_category' => 0,
+                'created_by_user' => $userId
+            ]);
+            $submissionCategoryId = $newCategory->id;
+        } else {
+            if(!$submissionCategory) return $this->failureResponse(['Submit Failure', ['This Category Does Not Exist']]);
+            $submissionCategoryId = $submissionCategory->id;
+        }
+
+
 
         $newSubmission = Submission::create([
             'user_id' => $userId,
@@ -43,9 +68,9 @@ class SubmissionCategoryController extends Controller
 
         return response([
             'status' => 'success',
+            'new_submission_id' => $newSubmission->id
+
         ], 200);
-
-
 
 
     }
