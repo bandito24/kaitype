@@ -19,13 +19,10 @@ import {
 } from "@/components/ui/popover"
 import {useEffect, useRef, useState} from "react";
 import axiosClient from "@/services/axios-client.tsx";
+import {RetrievedCategory} from "@/lib/types.tsx";
 
 
-type CategoryType = {
-    id: number;
-    name: string;
-    submissions_count: number;
-};
+
 type SubmissionOption = {
     value: string,
     label: string
@@ -48,7 +45,7 @@ export default function CategoryInput({setCategoryValue, setIsCustomCat, categor
                 const axiosResponse = await axiosClient.get('/categories')
                 if(axiosResponse.status === 200){
 
-                    const categories: Array<CategoryType> = axiosResponse.data;
+                    const categories: Array<RetrievedCategory> = axiosResponse.data;
                     console.log(axiosResponse.data)
                     const newCategoryOptions: Array<SubmissionOption> = categories.map(category => ({
                         value: category.name,

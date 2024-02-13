@@ -34,8 +34,12 @@
     color: black !important;
 }
 
+/*.boop{*/
+/*    background-color: white !important;*/
+/*}*/
 .boop{
-    background-color: white !important;
+    border: #535bf2 solid 4px !important;
+    box-sizing: border-box;
 }
 
 
@@ -119,13 +123,13 @@
 /*.boop {*/
 /*    animation: boopAnimation 0.1s forwards;*/
 /*}*/
-div:active{
-    background: #2a2a2a;
-    color: #aaa;
-    position: relative;
-    top: 0.2em;
-    box-shadow: 0 0 0 0.05em black;
-}
+/*div:active{*/
+/*    background: #2a2a2a;*/
+/*    color: #aaa;*/
+/*    position: relative;*/
+/*    top: 0.2em;*/
+/*    box-shadow: 0 0 0 0.05em black;*/
+/*}*/
 
 .key--w3 {
     width: 4.6em;

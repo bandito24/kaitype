@@ -19,7 +19,7 @@ class SubmissionCategoryController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         $categories = SubmissionCategory::withCount('submissions')
             ->orderBy('submissions_count', 'desc')

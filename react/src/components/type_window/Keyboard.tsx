@@ -8,8 +8,8 @@ type KeyboardProps = {
 
 export default function Keyboard({activeString, inputValue}: KeyboardProps) {
 
+
     useEffect(() => {
-        console.log(inputValue)
             const inputKeys = Array.from(document.querySelectorAll('.input-key')!)
             function clearKeyHighlights(){
                 inputKeys.forEach(el => el.classList.remove('boop'))
@@ -58,7 +58,7 @@ export default function Keyboard({activeString, inputValue}: KeyboardProps) {
                     <div>~</div>
                     <div>`</div>
                 </div>
-                <div className="key--double left-pinky shift-right input-key char-shift-41 char-33" data-key="49">
+                <div className="key--double left-pinky shift-right input-key char-shift-31 char-33" data-key="49">
                     <div>!</div>
                     <div>1</div>
                 </div>

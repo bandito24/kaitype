@@ -27,9 +27,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
 Route::post('/signup', [AuthController::class, 'signup']);
 Route::post('/signin', [AuthController::class, 'signin']);
-Route::get('/categories', [SubmissionCategoryController::class, 'index']);
 
 
 Route::get('/categories', [SubmissionCategoryController::class, 'index']);
-//Route::post('/signout', [AuthController::class, 'signout']);
 

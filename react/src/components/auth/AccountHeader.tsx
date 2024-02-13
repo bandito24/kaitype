@@ -2,13 +2,15 @@ import {useStateContext} from "../../../contexts/contextProvider.tsx";
 import UserDropdown from "@/components/auth/UserDropdown.tsx";
 import AnonymousUserDropdown from "@/components/auth/AnonymousUserDropdown.tsx";
 import {DropdownMenu, DropdownMenuTrigger} from "@/components/ui/dropdown-menu.tsx";
+import {Button} from "@/components/ui/button.tsx";
+import {Link} from "react-router-dom"
 
 
 export default function AccountHeader() {
     const {token, user} = useStateContext()
 
     return (
-        <>
+        <div className="flex justify-around">
             <DropdownMenu>
                 <DropdownMenuTrigger>
                     <div
@@ -20,7 +22,9 @@ export default function AccountHeader() {
                     <AnonymousUserDropdown/>
                 }
             </DropdownMenu>
+            <Link to='/browse'><Button>Browse</Button></Link>
+            <Link to='/submit'><Button>Submit</Button></Link>
 
-        </>
+        </div>
     )
 }

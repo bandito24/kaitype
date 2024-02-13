@@ -41,7 +41,11 @@ export default function ProgressTimer({inProgress, challengeProgression}: Props)
 
     return (
         <div className="mb-24">
-            <p>Timer: {timer} seconds</p>
+            <p>Timer: {
+                (timer >= 60 ? Math.floor(timer / 60) : 0)
+                + ':' + timer % 60
+            }
+            </p>
             <progress value={progressValue.toString()} max="100"/>
         </div>
     )

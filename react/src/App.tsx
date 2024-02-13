@@ -1,8 +1,7 @@
 import './App.css'
 import AccountHeader from "@/components/auth/AccountHeader.tsx";
-import TypeWindow from "@/components/type_window/TypeWindow.tsx";
-// import Keyboard from "@/type_window/Keyboard.tsx";
-// import SubmissionInput from "@/components/type_submissions/SubmissionInput.tsx";
+import {Outlet} from "react-router-dom";
+
 
 
 
@@ -12,10 +11,7 @@ function App() {
         <>
         <div className="w-5/6 m-auto pt-20">
             <AccountHeader/>
-            <TypeWindow />
-            {/*<SubmissionInput />*/}
-
-
+            <Outlet/>
         </div>
 
 
