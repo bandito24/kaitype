@@ -2,7 +2,10 @@ import {createBrowserRouter} from "react-router-dom";
 import App from "@/App.tsx";
 import TypeWindow from "@/components/type_window/TypeWindow.tsx";
 import SubmissionInput from "@/components/type_submissions/SubmissionInput.tsx";
-import CategoriesList from "@/components/browse_categories/CategoriesList.tsx";
+import ChallengesList from "@/components/browse/ChallengesList.tsx";
+import CategoriesList from "@/components/browse/CategoriesList.tsx";
+import BrowseContainer from "@/components/browse/BrowseContainer.tsx";
+
 
 const router = createBrowserRouter([
 
@@ -20,8 +23,19 @@ const router = createBrowserRouter([
             },
             {
                 path: '/browse',
-                element: <CategoriesList />
+                element: <BrowseContainer />,
+                children: [
+                    {
+                        path: '',
+                        element: <CategoriesList />
+                    },
+                    {
+                        path: ':category',
+                        element: <ChallengesList />
+                    }
+                ]
             },
+
 
         ]
     },

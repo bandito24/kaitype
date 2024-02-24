@@ -9,5 +9,6 @@ export type ErrorObject = {
 export type RetrievedCategory = {
     id: number;
     name: string;
+    slug: string;
     submissions_count: number;
 };

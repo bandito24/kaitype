@@ -3,9 +3,11 @@
 namespace Database\Seeders;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\Submission;
 use App\Models\SubmissionCategory;
 use App\Models\User;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Str;
 
 class DatabaseSeeder extends Seeder
 {
@@ -29,10 +31,13 @@ class DatabaseSeeder extends Seeder
          foreach ($this->languages as $lang){
              SubmissionCategory::create([
                  'name' => $lang,
+                 'slug' => strtolower(urlencode($lang)),
                  'created_by_user' => $user->id,
                  'default_category' => true
              ]);
          }
+
+         Submission::factory()->count(99)->create();
 
     }
 }

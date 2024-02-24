@@ -23,6 +23,7 @@ return new class extends Migration
 
             $table->text('title');
             $table->text('content');
+            $table->text('description');
             $table->timestamps();
         });
     }

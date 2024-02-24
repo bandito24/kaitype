@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Submission;
 use App\Models\SubmissionCategory;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class SubmissionCategoryController extends Controller
 {
@@ -19,11 +20,34 @@ class SubmissionCategoryController extends Controller
     /**
      * Display a listing of the resource.
      */
+    public function show(Request $request, $slug){
+        $page = $request->input('page', 1);
+        $category = SubmissionCategory::where('slug', $slug)->first();
+
+        $categoryCount = Submission::where('submission_category_id', $category->id)->count();
+
+        $categoryChallenges = Submission::where('submission_category_id', $category->id)
+        ->paginate(2, ['title', 'id', 'description'], 'page', $page)
+        ;
+        return response([
+            'categoryChallenges' => $categoryChallenges,
+            'categoryName' => $category->name,
+            'categoryCount' => $categoryCount
+        ], 200);
+
+
+
+    }
+
+
+
     public function index(Request $request)
     {
+
+        $page = $request->input('page', 1);
         $categories = SubmissionCategory::withCount('submissions')
             ->orderBy('submissions_count', 'desc')
-            ->get(['name']);
+            ->paginate(2, ['name'], 'page', $page);
         return response($categories, 200);
     }
 
@@ -34,7 +58,7 @@ class SubmissionCategoryController extends Controller
     {
         $attributes = $request->validate([
             'title' => ['required', 'max: 20'],
-            'description' => ['required', 'max: 255'],
+            'description' => ['required', 'max: 30'],
             'category' => ['required', 'max: 20'],
             'content' => ['required'],
             'isCustomCategory' => ['boolean']
@@ -48,7 +72,8 @@ class SubmissionCategoryController extends Controller
             if($submissionCategory) return $this->failureResponse(['Creation Failure', ['This Category Already Exists']]);
             $newCategory = SubmissionCategory::create([
                 'name' => $attributes['category'],
-                'default_category' => 0,
+                'slug' => strtolower(urlencode($attributes['title'])),
+                'default_category' => false,
                 'created_by_user' => $userId
             ]);
             $submissionCategoryId = $newCategory->id;
@@ -56,11 +81,9 @@ class SubmissionCategoryController extends Controller
             if(!$submissionCategory) return $this->failureResponse(['Submit Failure', ['This Category Does Not Exist']]);
             $submissionCategoryId = $submissionCategory->id;
         }
-
-
-
         $newSubmission = Submission::create([
             'user_id' => $userId,
+            'description' => $attributes['description'],
             'submission_category_id' => $submissionCategoryId,
             'title' => $attributes['title'],
             'content' => $attributes['content']
@@ -86,10 +109,10 @@ class SubmissionCategoryController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(SubmissionCategory $submissionCategory)
-    {
-
-    }
+//    public function show(SubmissionCategory $submissionCategory)
+//    {
+//
+//    }
 
     /**
      * Show the form for editing the specified resource.

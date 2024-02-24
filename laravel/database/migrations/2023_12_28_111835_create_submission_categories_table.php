@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::create('submission_categories', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->string('slug')->unique();
             $table->boolean('default_category')->default(false);
-
             $table->unsignedBigInteger('created_by_user');
             $table->foreign('created_by_user')->references('id')->on('users');
 

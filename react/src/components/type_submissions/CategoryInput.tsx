@@ -45,7 +45,7 @@ export default function CategoryInput({setCategoryValue, setIsCustomCat, categor
                 const axiosResponse = await axiosClient.get('/categories')
                 if(axiosResponse.status === 200){
 
-                    const categories: Array<RetrievedCategory> = axiosResponse.data;
+                    const categories: Array<RetrievedCategory> = axiosResponse.data.data;
                     console.log(axiosResponse.data)
                     const newCategoryOptions: Array<SubmissionOption> = categories.map(category => ({
                         value: category.name,
