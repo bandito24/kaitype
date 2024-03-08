@@ -36,7 +36,6 @@ export default function ChallengesList() {
                     const {data} = response;
                     const {categoryChallenges} = data
                     console.log(data)
-
                     setCategoryChallenges(() => ({
                         categoryName: data.categoryName,
                         challenges: categoryChallenges.data,

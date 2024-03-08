@@ -27,6 +27,7 @@ class SubmissionCategoryController extends Controller
         $categoryCount = Submission::where('submission_category_id', $category->id)->count();
 
         $categoryChallenges = Submission::where('submission_category_id', $category->id)
+        ->orderBy('created_at', 'desc')
         ->paginate(2, ['title', 'id', 'description'], 'page', $page)
         ;
         return response([
