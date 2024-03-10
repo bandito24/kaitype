@@ -9,10 +9,9 @@ use Illuminate\Http\Request;
 class SubmissionController extends Controller
 {
     public function show($id){
-        $submission = Submission::where('id', $id)->first(['content']);
-        return $submission;
-
-
+         return Submission::select('title', 'content', 'id', 'description')
+            ->where('id', $id)
+            ->first();
     }
     public function create(Request $request)
     {

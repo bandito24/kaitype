@@ -58,19 +58,14 @@ class CodeMigration extends Command
 
                 $rawCodeContent = array_filter(preg_split($pattern, $content));
                 $htmlEncodedContent = array_map(function($code){
-                    $tmp = htmlspecialchars($code, ENT_QUOTES | ENT_HTML5, 'UTF-8');
-                    return array_values(array_filter(explode("\n", $tmp)));
+                    $tmp = htmlentities($code, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+                    return array_values(array_filter(explode("\n", $code)));
                 }, $rawCodeContent);
 
 
                 for($i = 0; $i < count($formattedMetaData); $i++){
                     $formattedMetaData[$i]['content'] = $htmlEncodedContent[$i];
                 }
-
-
-                print_r($formattedMetaData);
-
-
 
 
                 foreach($formattedMetaData as $meta){

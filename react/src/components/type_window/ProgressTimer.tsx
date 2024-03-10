@@ -9,11 +9,13 @@ type ChallengeProgress = {
 type Props = {
     inProgress: boolean
     challengeProgression: ChallengeProgress
+    setTimer: React.Dispatch<React.SetStateAction<number>>
+    timer: number
+    completed: boolean
 }
 
 
-export default function ProgressTimer({inProgress, challengeProgression}: Props) {
-    const [timer, setTimer] = useState(0);
+export default function ProgressTimer({inProgress, challengeProgression, timer, setTimer, completed}: Props) {
     const [progressValue, setProgressValue] = useState<number>(0)
 
 
@@ -22,21 +24,22 @@ export default function ProgressTimer({inProgress, challengeProgression}: Props)
         setProgressValue(((challengeProgression.currentIndex - 1) / challengeProgression.totalIndex) * 100)
 
 
-        if (inProgress) {
+        if (inProgress && !completed) {
             timeoutId = setTimeout(() => {
                 setTimer(prevTimer => prevTimer + 1);
             }, 1000);
-        } else {
-            setProgressValue(100)
-            setTimer(0);
         }
+        // else {
+        //     setProgressValue(100)
+        //     setTimer(0);
+        // }
 
         return () => {
             if (timeoutId) {
                 clearTimeout(timeoutId);
             }
         };
-    }, [inProgress, timer, challengeProgression]);
+    }, [inProgress, timer]);
 
 
     return (

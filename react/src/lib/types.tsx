@@ -1,5 +1,6 @@
 export type UserType = {
     username: string,
+    id: number
 }
 
 export type ErrorObject = {

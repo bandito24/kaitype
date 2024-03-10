@@ -1,10 +1,10 @@
 import {createBrowserRouter} from "react-router-dom";
 import App from "@/App.tsx";
-import TypeWindow from "@/components/type_window/TypeWindow.tsx";
 import SubmissionInput from "@/components/type_submissions/SubmissionInput.tsx";
 import ChallengesList from "@/components/browse/ChallengesList.tsx";
 import CategoriesList from "@/components/browse/CategoriesList.tsx";
 import BrowseContainer from "@/components/browse/BrowseContainer.tsx";
+import Challenge from "@/components/type_window/Challenge.tsx";
 
 
 const router = createBrowserRouter([
@@ -14,8 +14,8 @@ const router = createBrowserRouter([
         element: <App />,
         children: [
             {
-                path: '/',
-                element: <TypeWindow />
+                path: '/challenge/:id',
+                element: <Challenge />
             },
             {
                 path: '/submit',

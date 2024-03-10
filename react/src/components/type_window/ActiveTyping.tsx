@@ -1,5 +1,6 @@
 import React, {useEffect, useState} from "react";
 import {encodeHtmlEntities} from "@/lib/helperFunctions.tsx";
+import {comment} from "postcss";
 
 
 type ChallengeProgress = {
@@ -20,6 +21,8 @@ type ActiveTypingProps = {
     challenge: Challenge
     challengeProgression: ChallengeProgress
     inputValue: string
+    setCompleted: React.Dispatch<React.SetStateAction<boolean>>
+    completed: boolean
 }
 
 export default function ActiveTyping({
@@ -31,14 +34,15 @@ export default function ActiveTyping({
                                          activeString,
                                          setActiveString,
                                          inputValue,
-                                         setInputValue
+                                         setInputValue,
+                                         setCompleted,
+                                         completed
                                      }: ActiveTypingProps) {
     // const [activeString, setActiveString] = useState<string>('');
     const [initialErrorIndex, setInitialErrorIndex] = useState<number>(-1)
 
 
     useEffect(() => {
-        console.log('active string ', activeString)
         setProgressString(encodeHtmlEntities(challenge[challengeProgression.currentIndex]))
         setActiveString(challenge[challengeProgression.currentIndex])
     }, [challengeProgression])
@@ -49,6 +53,7 @@ export default function ActiveTyping({
     // };
 
     const handleChange = (event) => {
+        if (completed) return
         const userInput = event.target.value
         setInputValue(userInput)
 
@@ -58,15 +63,15 @@ export default function ActiveTyping({
             const remainingString = encodeHtmlEntities(activeString.substring(userInput.length));
             setProgressString(matchedString + remainingString);
             if (userInput.length === activeString.length) {
-                if (challengeProgression.currentIndex === challengeProgression.totalIndex) {
+                if (challengeProgression.currentIndex === challengeProgression.totalIndex - 1) {
                     setInProgress(false)
-                    setTimeout(() => {
-                        alert('you won')
-                        setChallengeProgression(prev => ({
-                            ...prev, currentIndex: 1
-                        }))
-                        setInputValue('')
-                    }, 200)
+                    // setTimeout(() => {
+                    setCompleted(true)
+                    // setChallengeProgression(prev => ({
+                    //     ...prev, currentIndex: 1
+                    // }))
+                    // setInputValue('')
+                    // }, 200)
 
                 } else {
                     setChallengeProgression(prev => ({
@@ -96,6 +101,7 @@ export default function ActiveTyping({
                    onChange={handleChange}
                 // onPaste={handleCopyPaste}
                    value={inputValue}
+                   disabled={completed}
             />
         </div>
     )

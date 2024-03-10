@@ -1,21 +1,34 @@
 import ActiveString from "@/components/type_window/ActiveString.tsx";
 import ActiveTyping from "@/components/type_window/ActiveTyping.tsx";
-import {useEffect, useState} from "react";
+import {useEffect, useMemo, useState} from "react";
 import ProgressTimer from "@/components/type_window/ProgressTimer.tsx";
-import {testObj} from "@/components/utilities/TestObj.tsx";
 import Keyboard from "@/components/type_window/Keyboard.tsx";
+import ChallengeCompletedResults from "@/components/type_window/ChallengeCompletedResults.tsx";
+import {useStateContext} from "../../../contexts/contextProvider.tsx";
 
 type ChallengeProgress = {
     currentIndex: number,
     totalIndex: number
 }
-type Challenge = {
-    [key: number]: string
+type Challenge = string[];
+
+type ChallengeMetadata = {
+    title: string,
+    description: string,
+    content: string, //json
+    id: number,
 }
 
-export default function TypeWindow() {
+
+type Props = {
+    challengeMetadata: ChallengeMetadata
+}
+
+export default function TypeWindow({challengeMetadata}: Props) {
+    const [timer, setTimer] = useState(0);
+    const [completed, setCompleted] = useState<boolean>(false)
     const [progressString, setProgressString] = useState<string>('')
-    const [challenge, setChallenge] = useState<Challenge>({})
+    const [challenge, setChallenge] = useState<Challenge>([])
     const [challengeProgression, setChallengeProgression] = useState<ChallengeProgress>({
         currentIndex: -1,
         totalIndex: 0
@@ -23,26 +36,44 @@ export default function TypeWindow() {
     const [inProgress, setInProgress] = useState<boolean>(false)
     const [inputValue, setInputValue] = useState('')
     const [activeString, setActiveString] = useState<string>('');
+    const [userId, setUserId] = useState<number>(-1)
+    const {user} = useStateContext();
 
 
-    const stringObj = testObj;
-    const challengeLength = Object.keys(stringObj).length
+    function formatChallengeContentJson(challengeJson){
+        return JSON.parse(challengeJson)
+            .map(val => val.trim())
+            .filter(val => val.length && val.substring(0,2) !== '//')
+    }
+    const formatJson = useMemo(()=> {
+        return formatChallengeContentJson(challengeMetadata.content)
+    }, [challenge])
+
+
 
     useEffect(() => {
-        setChallenge(stringObj)
-        setChallengeProgression({currentIndex: 1, totalIndex: challengeLength})
+        if(user?.id){
+            setUserId(user.id)
+        }
+        const challengeContent = formatJson;
+        const challengeLength = challengeContent.length
+        setChallenge(challengeContent)
+        setChallengeProgression({currentIndex: 0, totalIndex: challengeLength})
         setInProgress(true)
-    }, [challenge])
+    }, [challengeMetadata])
 
 
     return (
         <>
-            <div className="m-auto mt-44 w-full flex flex-col items-center">
+            <div className="m-auto mt-44 w-full flex flex-col items-center relative">
                 {Object.keys(challenge).length > 0 &&
                     <>
                         <ProgressTimer
                             inProgress={inProgress}
                             challengeProgression={challengeProgression}
+                            setTimer={setTimer}
+                            timer={timer}
+                            completed={completed}
                         />
                         <ActiveString
                             progressString={progressString}
@@ -57,7 +88,16 @@ export default function TypeWindow() {
                             setInProgress={setInProgress}
                             inputValue={inputValue}
                             setInputValue={setInputValue}
+                            setCompleted={setCompleted}
+                            completed={completed}
                         />
+                        {completed &&
+                            <ChallengeCompletedResults
+                                timer={timer}
+                                userId={userId}
+                                challengeId={challengeMetadata.id}
+                            />
+                        }
                     </>
                 }
 
@@ -66,6 +106,7 @@ export default function TypeWindow() {
             activeString={activeString}
             inputValue={inputValue}
             />
+
         </>
     )
 }

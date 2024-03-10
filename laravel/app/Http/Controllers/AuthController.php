@@ -27,7 +27,8 @@ class AuthController extends Controller
             'message' => "new account created for {$user->username}",
             'token' => $token,
             'user' => [
-                'username' => $user->username
+                'username' => $user->username,
+                'id' => $user->id
             ]
         ], 201);
     }
@@ -44,7 +45,8 @@ class AuthController extends Controller
                 'message' => "{$user->username} logged in successfully",
                 'token' => $token,
                 'user' => [
-                    'username' => $user->username
+                    'username' => $user->username,
+                    'id' => $user->id
                 ]
             ], 201);
     }

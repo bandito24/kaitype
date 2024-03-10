@@ -1,6 +1,7 @@
 import React, {useEffect, useRef, useState} from "react";
 import axiosClient from "@/services/axios-client.tsx";
 import ChallengePreview from "@/components/browse/ChallengePreview.tsx";
+import {useNavigate} from "react-router-dom";
 
 
 type props = {
@@ -15,6 +16,7 @@ const [isHovered, setIsHovered] = useState<boolean>(false)
 const [challengeContent, setChallengeContent] = useState<string[] | null>(null)
 const [isDelayPassed, setIsDelayPassed] = useState(false);
 const delayTimerRef = useRef<number>(0);
+const navigate = useNavigate();
 
     const handleMouseEnter = () => {
         delayTimerRef.current = setTimeout(() => {
@@ -29,6 +31,9 @@ const delayTimerRef = useRef<number>(0);
         setIsHovered(false);
         setIsDelayPassed(false);
     };
+    function handleOnClick(){
+        navigate(`/challenge/${challengeId}`);
+    }
 
     useEffect(() => {
         // Run the async function when delay is passed and hovered over
@@ -38,7 +43,6 @@ const delayTimerRef = useRef<number>(0);
                     const response = await axiosClient.get(`/submission/${challengeId}`);
                     if (response.status === 200) {
                         setChallengeContent(JSON.parse(response.data.content));
-                        console.log(JSON.parse(response.data.content));
                     }
                 } catch (e) {
                     console.error(e);
@@ -53,6 +57,7 @@ const delayTimerRef = useRef<number>(0);
             <div className="flex flex-wrap -m-4 animate-fadeIn relative"
                  onMouseEnter={handleMouseEnter}
                  onMouseLeave={handleMouseLeave}
+                 onClick={handleOnClick}
             >
                 <div className="xl:w-1/3 md:w-1/2 p-4" >
                     <div className="border border-gray-200 p-6 rounded-lg  cursor-pointer transition duration-200 ease-in-out hover:bg-amber-200">

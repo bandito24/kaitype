@@ -32,15 +32,12 @@ export default function SignInForm({setErrors}) {
             email: emailRef.current?.value || '',
             password: passwordRef.current?.value || '',
         }
-        console.log(payload)
         try{
             const axiosResponse = await axiosClient.post('/signin', payload)
             const response: SignInResponse = axiosResponse.data
             setUser(response.user)
             setToken(response.token)
-            console.log(response)
         } catch(e: any){
-            console.log(e)
             if(e.status === 422){
                 const { errors } = e.data;
                 console.log(errors)
