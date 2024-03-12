@@ -19,34 +19,27 @@ export default function ProgressTimer({inProgress, challengeProgression, timer, 
     const [progressValue, setProgressValue] = useState<number>(0)
 
 
+    // intervalId = setInterval(() => setTimer(timer + 1), 10);
     useEffect(() => {
-        let timeoutId;
         setProgressValue(((challengeProgression.currentIndex - 1) / challengeProgression.totalIndex) * 100)
-
-
         if (inProgress && !completed) {
-            timeoutId = setTimeout(() => {
-                setTimer(prevTimer => prevTimer + 1);
-            }, 1000);
+            const intervalId = setInterval(() => {
+                setTimer(currentTimer => currentTimer + 1);
+            }, 10);
+            return () => clearInterval(intervalId);
         }
-        // else {
-        //     setProgressValue(100)
-        //     setTimer(0);
-        // }
+    }, [inProgress, completed]);
 
-        return () => {
-            if (timeoutId) {
-                clearTimeout(timeoutId);
-            }
-        };
-    }, [inProgress, timer]);
+    const minutes = Math.floor(timer / 6000);
+    const seconds = Math.floor((timer % 6000) / 100);
+    const milliseconds = timer % 100;
 
 
     return (
         <div className="mb-24">
-            <p>Timer: {
-                (timer >= 60 ? Math.floor(timer / 60) : 0)
-                + ':' + timer % 60
+            <p>Timer: {minutes.toString().padStart(2, "0")}:
+            {seconds.toString().padStart(2, "0")}:
+            {milliseconds.toString().padStart(2, "0")
             }
             </p>
             <progress value={progressValue.toString()} max="100"/>

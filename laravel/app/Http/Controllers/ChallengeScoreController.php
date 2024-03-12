@@ -30,7 +30,30 @@ class ChallengeScoreController extends Controller
      */
     public function store(StoreChallengeScoreRequest $request)
     {
-        //
+
+        $lastTime = ChallengeScore::where('submission_id', $request['submission_id'])
+            ->where('user_id', $request['user_id'])
+            ->value('milliseconds');
+
+        $timeDifference = null;
+        if($lastTime && $lastTime > $request['milliseconds']){
+
+        ChallengeScore::updateOrCreate([
+            'user_id' => $request['user_id'],
+            'submission_id' => $request['submission_id']
+        ], [
+            'milliseconds' => $request['milliseconds'],
+        ]);
+
+        }
+
+
+
+        return ([
+            'status' => 'success'
+        ])
+
+
     }
 
     /**

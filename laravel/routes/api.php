@@ -35,3 +35,5 @@ Route::get('/categories', [SubmissionCategoryController::class, 'index']);
 Route::get('/categories/{slug}', [SubmissionCategoryController::class, 'show']);
 Route::get('/submission/{id}', [SubmissionController::class, 'show']);
 
+
+

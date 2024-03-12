@@ -16,7 +16,8 @@ export default function ChallengeCompletedResults({timer, userId, challengeId}: 
             try{
                 const response = await axiosClient.post(`/submissionResult`, {
                     user_id: userId,
-                    challenge_id: challengeId
+                    challenge_id: challengeId,
+                    milliseconds: timer
                 })
                 console.log(response)
             }catch(e){

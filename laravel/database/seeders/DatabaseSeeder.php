@@ -39,11 +39,12 @@ class DatabaseSeeder extends Seeder
             ]);
         }
 
-        Submission::factory()->count(99)->create();
+//        Submission::factory()->count(99)->create();
 
 
         $this->call([
-            SubmissionSeeder::class
+            SubmissionSeeder::class,
+            UserSeeder::class
         ]);
     }
 }

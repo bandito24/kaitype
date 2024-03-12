@@ -15,8 +15,8 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->foreignId('submission_id')->constrained()->cascadeOnDelete();
-            $table->unsignedInteger('time');
-            $table->date('last_attempt');
+            $table->unsignedInteger('milliseconds');
+            $table->timestamps();
         });
     }
 
