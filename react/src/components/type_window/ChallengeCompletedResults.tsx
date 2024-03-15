@@ -20,7 +20,7 @@ export default function ChallengeCompletedResults({
         const response = await axiosClient.post(`/completedChallenge`, {
           user_id: userId,
           submission_id: challengeId,
-          milliseconds: timer,
+          milliseconds: timer * 10,
         })
         const {data} = response
         console.log(data)
@@ -32,7 +32,7 @@ export default function ChallengeCompletedResults({
   }, [])
 
   return (
-    <div className="absolute inset-0 z-50 mx-auto my-auto w-full max-w-md rounded-lg border border-gray-200 bg-white p-4 shadow dark:border-gray-700 dark:bg-gray-800 sm:p-8">
+    <div className="absolute inset-0 z-50 mx-auto my-auto w-full max-w-md rounded-lg border border-gray-200 bg-white p-4 opacity-20 shadow dark:border-gray-700 dark:bg-gray-800 sm:p-8">
       <div className="mb-4 flex items-center justify-between">
         <h5 className="text-xl font-bold leading-none text-gray-900 dark:text-white">
           Latest Customers
