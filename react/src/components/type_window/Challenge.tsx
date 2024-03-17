@@ -25,6 +25,7 @@ type ChallengeContent = {
 export default function Challenge() {
   const [challengeMetadata, setChallengeMetadata] =
     useState<null | ChallengeMetadata>()
+  const [timer, setTimer] = useState(0)
   const {id} = useParams()
 
   useEffect(() => {
@@ -47,8 +48,13 @@ export default function Challenge() {
         <>
           <PreviousResults
             previousResults={challengeMetadata.previousResults}
+            timer={timer}
           />
-          <TypeWindow challengeContent={challengeMetadata.submission} />
+          <TypeWindow
+            challengeContent={challengeMetadata.submission}
+            timer={timer}
+            setTimer={setTimer}
+          />
         </>
       )}
     </div>

@@ -1,6 +1,6 @@
 import ActiveString from '@/components/type_window/ActiveString.tsx'
 import ActiveTyping from '@/components/type_window/ActiveTyping.tsx'
-import {useEffect, useMemo, useState} from 'react'
+import React, {useEffect, useMemo, useState} from 'react'
 import ProgressTimer from '@/components/type_window/ProgressTimer.tsx'
 import Keyboard from '@/components/type_window/Keyboard.tsx'
 import ChallengeCompletedResults from '@/components/type_window/ChallengeCompletedResults.tsx'
@@ -21,10 +21,12 @@ type ChallengeContent = {
 
 type Props = {
   challengeContent: ChallengeContent
+  timer: number
+  setTimer: React.Dispatch<React.SetStateAction<number>>
 }
 
-export default function TypeWindow({challengeContent}: Props) {
-  const [timer, setTimer] = useState(0)
+export default function TypeWindow({challengeContent, timer, setTimer}: Props) {
+  // const [timer, setTimer] = useState(0)
   const [completed, setCompleted] = useState<boolean>(false)
   const [progressString, setProgressString] = useState<string>('')
   const [challenge, setChallenge] = useState<Challenge>([])
@@ -85,13 +87,13 @@ export default function TypeWindow({challengeContent}: Props) {
               setCompleted={setCompleted}
               completed={completed}
             />
-            {completed && (
-              <ChallengeCompletedResults
-                timer={timer}
-                userId={userId}
-                challengeId={challengeContent.id}
-              />
-            )}
+            {/*{completed && (*/}
+            {/*  <ChallengeCompletedResults*/}
+            {/*    timer={timer}*/}
+            {/*    userId={userId}*/}
+            {/*    challengeId={challengeContent.id}*/}
+            {/*  />*/}
+            {/*)}*/}
           </>
         )}
       </div>
