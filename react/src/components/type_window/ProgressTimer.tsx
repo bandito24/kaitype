@@ -1,5 +1,4 @@
 import {useEffect, useState} from 'react'
-import TimeFormatter from '@/components/utilities/TimeFormatter.tsx'
 
 type ChallengeProgress = {
   currentIndex: number
@@ -9,47 +8,42 @@ type ChallengeProgress = {
 type Props = {
   inProgress: boolean
   challengeProgression: ChallengeProgress
-  setTimer: React.Dispatch<React.SetStateAction<number>>
-  timer: number
   completed: boolean
 }
 
 export default function ProgressTimer({
   inProgress,
   challengeProgression,
-  timer,
-  setTimer,
   completed,
 }: Props) {
   const [progressValue, setProgressValue] = useState<number>(0)
 
-  // intervalId = setInterval(() => setTimer(timer + 1), 10);
   useEffect(() => {
+    console.log('numerator: ', challengeProgression.currentIndex)
+    console.log('denominator: ', challengeProgression.totalIndex)
     setProgressValue(
-      ((challengeProgression.currentIndex - 1) /
-        challengeProgression.totalIndex) *
-        100
+      completed
+        ? 100
+        : (challengeProgression.currentIndex /
+            challengeProgression.totalIndex) *
+            100
     )
-    if (inProgress && !completed) {
-      const intervalId = setInterval(() => {
-        setTimer((currentTimer) => currentTimer + 1)
-      }, 10)
-      return () => clearInterval(intervalId)
-    }
-  }, [inProgress, completed])
+  }, [challengeProgression, completed])
 
-  // const minutes = Math.floor(timer / 6000);
-  // const seconds = Math.floor((timer % 6000) / 100);
-  // const milliseconds = timer % 100;
-  const timeTool = new TimeFormatter()
+  console.log(progressValue)
 
   return (
     <div className="mb-24">
-      {/*<p>Timer: {timeTool.formatMilliseconds(timer)}</p>*/}
-      <progress
-        value={progressValue.toString()}
-        max="100"
-      />
+      <div className="flex h-14 w-96 justify-start overflow-hidden rounded-full bg-gray-400">
+        <div
+          style={{
+            width: `${progressValue}%`,
+            transition: 'width 500ms ease-in-out',
+          }}
+          className="z-50 rounded-full bg-blue-600">
+          {'\u00A0'}
+        </div>
+      </div>
     </div>
   )
 }

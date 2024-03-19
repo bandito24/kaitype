@@ -25,7 +25,8 @@ type ChallengeContent = {
 export default function Challenge() {
   const [challengeMetadata, setChallengeMetadata] =
     useState<null | ChallengeMetadata>()
-  const [timer, setTimer] = useState(0)
+  const [completed, setCompleted] = useState<boolean>(false)
+  const [inProgress, setInProgress] = useState<boolean>(false)
   const {id} = useParams()
 
   useEffect(() => {
@@ -48,12 +49,17 @@ export default function Challenge() {
         <>
           <PreviousResults
             previousResults={challengeMetadata.previousResults}
-            timer={timer}
+            completed={completed}
+            inProgress={inProgress}
           />
           <TypeWindow
             challengeContent={challengeMetadata.submission}
-            timer={timer}
-            setTimer={setTimer}
+            completed={completed}
+            setCompleted={setCompleted}
+            inProgress={inProgress}
+            setInProgress={setInProgress}
+            // timer={timer}
+            // setTimer={setTimer}
           />
         </>
       )}

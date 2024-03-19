@@ -21,13 +21,21 @@ type ChallengeContent = {
 
 type Props = {
   challengeContent: ChallengeContent
-  timer: number
-  setTimer: React.Dispatch<React.SetStateAction<number>>
+  completed: boolean
+  setCompleted: React.Dispatch<React.SetStateAction<boolean>>
+  inProgress: boolean
+  setInProgress: React.Dispatch<React.SetStateAction<boolean>>
 }
 
-export default function TypeWindow({challengeContent, timer, setTimer}: Props) {
+export default function TypeWindow({
+  challengeContent,
+  completed,
+  setCompleted,
+  inProgress,
+  setInProgress,
+}: Props) {
   // const [timer, setTimer] = useState(0)
-  const [completed, setCompleted] = useState<boolean>(false)
+  // const [completed, setCompleted] = useState<boolean>(false)
   const [progressString, setProgressString] = useState<string>('')
   const [challenge, setChallenge] = useState<Challenge>([])
   const [challengeProgression, setChallengeProgression] =
@@ -35,7 +43,7 @@ export default function TypeWindow({challengeContent, timer, setTimer}: Props) {
       currentIndex: -1,
       totalIndex: 0,
     })
-  const [inProgress, setInProgress] = useState<boolean>(false)
+  // const [inProgress, setInProgress] = useState<boolean>(false)
   const [inputValue, setInputValue] = useState('')
   const [activeString, setActiveString] = useState<string>('')
   const [userId, setUserId] = useState<number>(-1)
@@ -69,8 +77,8 @@ export default function TypeWindow({challengeContent, timer, setTimer}: Props) {
             <ProgressTimer
               inProgress={inProgress}
               challengeProgression={challengeProgression}
-              setTimer={setTimer}
-              timer={timer}
+              // setTimer={setTimer}
+              // timer={timer}
               completed={completed}
             />
             <ActiveString progressString={progressString} />
