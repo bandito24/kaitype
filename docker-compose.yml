@@ -7,8 +7,6 @@ services:
       MYSQL_USER: '${MYSQL_USER}'
       MYSQL_PASSWORD: '${MYSQL_PASSWORD}'
       MYSQL_ALLOW_EMPTY_PASSWORD: 0
-      # REDIS_HOST: redis
-      # REDIS_PORT: 6379
     volumes:
       - '${DB_VOLUME_PATH}:/var/lib/mysql'
       - '${SQL_DUMP_PATH}:/docker-entrypoint-initdb.d'
@@ -16,7 +14,6 @@ services:
       - '3306:3306'
     networks:
       - 'kaitype-server'
-
 
 
   laravel:
@@ -28,9 +25,9 @@ services:
     container_name: laravel
     volumes:
       - '${LARAVEL_ROOT}:/app'
+#      - './xdebug.ini:/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini'
     ports:
       - '8000:8000'
-      # - '433:433'
     networks:
       - 'kaitype-server'
     command: php artisan serve --host=0.0.0.0 --port=8000
@@ -64,22 +61,8 @@ services:
     environment:
       CHOKIDAR_USEPOLLING: "true"
 
-  # redis: 
-  #   image: 'redis:latest'
-  #   container_name: redis
-  #   restart: always
-  #   command: redis-server --save 20 1 --loglevel warning 
-  #   volumes:
-  #     - 'redis_test:/data'
-  #   ports: 
-  #     - '6379:6379'
-  #   networks:
-  #   - - 'kaitype-server'
 
 
 networks:
-  kaitype-server: 
+  kaitype-server:
     driver: bridge
-# volumes:
-#   redis_test:
-#     driver: local

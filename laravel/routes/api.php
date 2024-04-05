@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ChallengeScoreController;
 use App\Http\Controllers\SubmissionCategoryController;
 use App\Http\Controllers\SubmissionController;
 use Illuminate\Http\Request;
@@ -34,6 +35,9 @@ Route::get('/categories', [SubmissionCategoryController::class, 'index']);
 
 Route::get('/categories/{slug}', [SubmissionCategoryController::class, 'show']);
 Route::get('/submission/{id}', [SubmissionController::class, 'show']);
+
+Route::get('/challengeScores/{submission_id}', [ChallengeScoreController::class, 'show']);
+Route::post('/completedChallenge', [ChallengeScoreController::class, 'store']);
 
 
 

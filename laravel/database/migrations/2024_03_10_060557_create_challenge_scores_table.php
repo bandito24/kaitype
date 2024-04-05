@@ -17,6 +17,9 @@ return new class extends Migration
             $table->foreignId('submission_id')->constrained()->cascadeOnDelete();
             $table->unsignedInteger('milliseconds');
             $table->timestamps();
+
+            // Define the composite primary key
+//            $table->primary(['user_id', 'submission_id']);
         });
     }
 

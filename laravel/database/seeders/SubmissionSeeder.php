@@ -39,6 +39,8 @@ class SubmissionSeeder extends Seeder
                         if ($data) unset($data);
                     }
 
+
+
                     $subData = array_values(array_filter($subData));
 
                     $header['title'] = trim($subData[0]);
@@ -57,7 +59,12 @@ class SubmissionSeeder extends Seeder
 
 
                 for ($i = 0; $i < count($formattedMetaData); $i++) {
+                    $charCount = 0;
+                    forEach ($htmlEncodedContent[$i] as $arrData){
+                        $charCount += strlen(trim($arrData));
+                    }
                     $formattedMetaData[$i]['content'] = $htmlEncodedContent[$i];
+                    $formattedMetaData[$i]['char_count'] = $charCount;
                 }
 
 
@@ -65,9 +72,10 @@ class SubmissionSeeder extends Seeder
                     Submission::create([
                         'title' => $meta['title'],
                         'description' => $meta['description'],
-                        'user_id' => 2,
+                        'user_id' => 1,
                         'submission_category_id' => $category->id,
-                        'content' => json_encode($meta['content'])
+                        'content' => json_encode($meta['content']),
+                        'char_count' => $meta['char_count']
                     ]);
                 }
 

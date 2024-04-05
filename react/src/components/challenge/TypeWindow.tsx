@@ -1,10 +1,8 @@
-import ActiveString from '@/components/type_window/ActiveString.tsx'
-import ActiveTyping from '@/components/type_window/ActiveTyping.tsx'
+import ActiveString from '@/components/challenge/ActiveString.tsx'
+import ActiveTyping from '@/components/challenge/ActiveTyping.tsx'
 import React, {useEffect, useMemo, useState} from 'react'
-import ProgressTimer from '@/components/type_window/ProgressTimer.tsx'
-import Keyboard from '@/components/type_window/Keyboard.tsx'
-import ChallengeCompletedResults from '@/components/type_window/ChallengeCompletedResults.tsx'
-import {useStateContext} from '../../../contexts/contextProvider.tsx'
+import ProgressBar from '@/components/challenge/ProgressBar.tsx'
+import Keyboard from '@/components/challenge/Keyboard.tsx'
 
 type ChallengeProgress = {
   currentIndex: number
@@ -17,25 +15,26 @@ type ChallengeContent = {
   description: string
   content: string //json
   id: number
+  char_count: number
 }
 
 type Props = {
   challengeContent: ChallengeContent
   completed: boolean
   setCompleted: React.Dispatch<React.SetStateAction<boolean>>
-  inProgress: boolean
   setInProgress: React.Dispatch<React.SetStateAction<boolean>>
+  currentWeightedLevel: number
+  allWeightedLevels: {[key: string]: number}
 }
 
 export default function TypeWindow({
   challengeContent,
   completed,
   setCompleted,
-  inProgress,
   setInProgress,
+  currentWeightedLevel,
+  allWeightedLevels,
 }: Props) {
-  // const [timer, setTimer] = useState(0)
-  // const [completed, setCompleted] = useState<boolean>(false)
   const [progressString, setProgressString] = useState<string>('')
   const [challenge, setChallenge] = useState<Challenge>([])
   const [challengeProgression, setChallengeProgression] =
@@ -43,28 +42,23 @@ export default function TypeWindow({
       currentIndex: -1,
       totalIndex: 0,
     })
-  // const [inProgress, setInProgress] = useState<boolean>(false)
   const [inputValue, setInputValue] = useState('')
   const [activeString, setActiveString] = useState<string>('')
-  const [userId, setUserId] = useState<number>(-1)
-  const {user} = useStateContext()
+  const [score, setScore] = useState<number>(0)
 
-  function formatchallengeContentJson(challengeJson) {
+  function formatChallengeContentJson(challengeJson) {
     return JSON.parse(challengeJson)
       .map((val) => val.trim())
       .filter((val) => val.length && val.substring(0, 2) !== '//')
   }
   const formatJson = useMemo(() => {
-    return formatchallengeContentJson(challengeContent.content)
+    return formatChallengeContentJson(challengeContent.content)
   }, [challenge])
 
   useEffect(() => {
-    if (user?.id) {
-      setUserId(user.id)
-    }
-    const challengeContent = formatJson
-    const challengeLength = challengeContent.length
-    setChallenge(challengeContent)
+    const activeChallenge = formatJson
+    const challengeLength = activeChallenge.length
+    setChallenge(activeChallenge)
     setChallengeProgression({currentIndex: 0, totalIndex: challengeLength})
     setInProgress(true)
   }, [challengeContent])
@@ -74,12 +68,10 @@ export default function TypeWindow({
       <div className="relative m-auto mt-44 flex w-full flex-col items-center">
         {Object.keys(challenge).length > 0 && (
           <>
-            <ProgressTimer
-              inProgress={inProgress}
+            <ProgressBar
               challengeProgression={challengeProgression}
-              // setTimer={setTimer}
-              // timer={timer}
               completed={completed}
+              score={score}
             />
             <ActiveString progressString={progressString} />
             <ActiveTyping
@@ -94,14 +86,10 @@ export default function TypeWindow({
               setInputValue={setInputValue}
               setCompleted={setCompleted}
               completed={completed}
+              setScore={setScore}
+              currentWeightedLevel={currentWeightedLevel}
+              allWeightedLevels={allWeightedLevels}
             />
-            {/*{completed && (*/}
-            {/*  <ChallengeCompletedResults*/}
-            {/*    timer={timer}*/}
-            {/*    userId={userId}*/}
-            {/*    challengeId={challengeContent.id}*/}
-            {/*  />*/}
-            {/*)}*/}
           </>
         )}
       </div>

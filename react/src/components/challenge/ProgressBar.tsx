@@ -6,21 +6,19 @@ type ChallengeProgress = {
 }
 
 type Props = {
-  inProgress: boolean
   challengeProgression: ChallengeProgress
   completed: boolean
+  score: number
 }
 
-export default function ProgressTimer({
-  inProgress,
+export default function ProgressBar({
   challengeProgression,
   completed,
+  score,
 }: Props) {
   const [progressValue, setProgressValue] = useState<number>(0)
 
   useEffect(() => {
-    console.log('numerator: ', challengeProgression.currentIndex)
-    console.log('denominator: ', challengeProgression.totalIndex)
     setProgressValue(
       completed
         ? 100
@@ -30,15 +28,14 @@ export default function ProgressTimer({
     )
   }, [challengeProgression, completed])
 
-  console.log(progressValue)
-
   return (
     <div className="mb-24">
+      <p>Score currently is: {score}</p>
       <div className="flex h-14 w-96 justify-start overflow-hidden rounded-full bg-gray-400">
         <div
           style={{
             width: `${progressValue}%`,
-            transition: 'width 500ms ease-in-out',
+            transition: 'width 400ms ease-in-out',
           }}
           className="z-50 rounded-full bg-blue-600">
           {'\u00A0'}

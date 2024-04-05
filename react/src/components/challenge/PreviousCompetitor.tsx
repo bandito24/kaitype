@@ -1,13 +1,15 @@
 type Competitor = {
   formattedTime: string
   username: string
-  currentPosition: number
+  currentPosition: number | null | undefined
+  competitorId: number
 }
 type Props = {
   competitor: Competitor
+  userId: number
 }
 
-export default function PreviousCompetitor({competitor}: Props) {
+export default function PreviousCompetitor({competitor, userId}: Props) {
   return (
     <>
       <li className="py-3 sm:py-4">
@@ -23,9 +25,11 @@ export default function PreviousCompetitor({competitor}: Props) {
             <p className="truncate text-sm font-medium text-gray-900 dark:text-white">
               {competitor.currentPosition}. {competitor.username}
             </p>
-            {/*<p className="truncate text-sm text-gray-500 dark:text-gray-400">*/}
-            {/*  email@windster.com*/}
-            {/*</p>*/}
+            {competitor.competitorId === userId && (
+              <p className="truncate text-sm text-green-300 dark:text-gray-400">
+                FORMER ATTEMPT
+              </p>
+            )}
           </div>
           <div className="box-content inline-flex w-[80px] items-center text-base font-semibold text-gray-700 dark:text-white">
             {competitor.formattedTime}

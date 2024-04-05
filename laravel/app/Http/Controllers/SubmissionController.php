@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\ChallengeScoreResource;
+use App\Models\ChallengeScore;
 use App\Models\Submission;
 use App\Models\SubmissionCategory;
 use Illuminate\Http\Request;
@@ -9,9 +11,23 @@ use Illuminate\Http\Request;
 class SubmissionController extends Controller
 {
     public function show($id){
-         return Submission::select('title', 'content', 'id', 'description')
+         $submission = Submission::select('title', 'content', 'id', 'description', 'char_count')
             ->where('id', $id)
             ->first();
+
+        $previousResults = ChallengeScore::with('user')
+            ->where('submission_id', $id)
+            ->orderBy('milliseconds')
+            ->orderBy('updated_at')
+            ->get(['user_id', 'milliseconds', 'updated_at']);
+
+        $previousResults->formatMilliseconds();
+        $transformedSubmissions = ChallengeScoreResource::collection($previousResults);
+
+        return response([
+            'submission' => $submission,
+            'previousResults' => $transformedSubmissions
+        ]);
     }
     public function create(Request $request)
     {
@@ -20,7 +36,8 @@ class SubmissionController extends Controller
             'description' => ['required', 'max: 97'],
             'category' => ['required', 'max: 20'],
             'content' => ['required'],
-            'isCustomCategory' => ['boolean']
+            'isCustomCategory' => ['boolean'],
+            'charCount' => ['required', 'numeric']
         ]);
 
         $userId = auth()->user()->id;
@@ -33,7 +50,8 @@ class SubmissionController extends Controller
                 'name' => $attributes['category'],
                 'slug' => strtolower(urlencode($attributes['title'])),
                 'default_category' => false,
-                'created_by_user' => $userId
+                'created_by_user' => $userId,
+                'char_count' => $attributes['charCount']
             ]);
             $submissionCategoryId = $newCategory->id;
         } else {
@@ -45,7 +63,8 @@ class SubmissionController extends Controller
             'description' => $attributes['description'],
             'submission_category_id' => $submissionCategoryId,
             'title' => $attributes['title'],
-            'content' => $attributes['content']
+            'content' => $attributes['content'],
+            'char_count' => $attributes['charCount']
         ]);
 
         return response([

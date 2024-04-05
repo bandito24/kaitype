@@ -14,6 +14,13 @@ class ChallengeScoreResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        return parent::toArray($request);
+        $data = parent::toArray($request);
+        if ($this->relationLoaded('user') && $this->user) {
+            $data['username'] = $this->user->username;
+            unset($data['user']);
+        }
+
+        return $data;
+
     }
 }

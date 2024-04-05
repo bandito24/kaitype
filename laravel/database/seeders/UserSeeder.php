@@ -18,17 +18,19 @@ class UserSeeder extends Seeder
     {
         $javaSubmissions = SubmissionCategory::where('name', 'Java')->first()->submissions;
 
+        $score = 2000;
         for($i = 0; $i < $javaSubmissions->count(); $i++){
             $newUser = User::factory()->create();
             foreach ($javaSubmissions as $submission){
                 ChallengeScore::create([
                     'user_id' => $newUser->id,
                     'submission_id' => $submission->id,
-                    'milliseconds' => rand(1, 50),
+                    'milliseconds' => $score,
                     'created_at' => now(),
                     'updated_at' => now()
                 ]);
             }
+            $score = $score + 3500;
         }
     }
 }

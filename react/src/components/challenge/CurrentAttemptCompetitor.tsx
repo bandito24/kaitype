@@ -1,5 +1,6 @@
-import {useEffect, useState} from 'react'
+import React, {useEffect} from 'react'
 import TimeFormatter from '@/components/utilities/TimeFormatter.tsx'
+import ChallengeCompletedResults from '@/components/challenge/ChallengeCompletedResults.tsx'
 
 type Props = {
   completed: boolean
@@ -7,6 +8,8 @@ type Props = {
   timer: number
   setTimer: React.Dispatch<React.SetStateAction<number>>
   rankPosition: number
+  userId: number
+  challengeId: number
 }
 
 export default function CurrentAttemptCompetitor({
@@ -15,6 +18,8 @@ export default function CurrentAttemptCompetitor({
   timer,
   setTimer,
   rankPosition,
+  userId,
+  challengeId,
 }: Props) {
   useEffect(() => {
     if (inProgress && !completed) {
@@ -28,7 +33,7 @@ export default function CurrentAttemptCompetitor({
   const timeTool = new TimeFormatter()
 
   return (
-    <>
+    <div>
       <li className="py-3 sm:py-4">
         <div className="flex items-center">
           <div className="flex-shrink-0">
@@ -51,6 +56,13 @@ export default function CurrentAttemptCompetitor({
           </div>
         </div>
       </li>
-    </>
+      {completed && (
+        <ChallengeCompletedResults
+          timer={timer}
+          userId={userId}
+          challengeId={challengeId}
+        />
+      )}
+    </div>
   )
 }

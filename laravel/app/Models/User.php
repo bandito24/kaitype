@@ -44,4 +44,8 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
+
+    public function challengeScores(){
+        return $this->hasMany(ChallengeScore::class, 'user_id', 'id');
+    }
 }
