@@ -10,6 +10,7 @@ type RankingProps = {
   completed: boolean
   inProgress: boolean
   challengeId: number
+  score: number
   currentWeightedLevel: number
   setCurrentWeightedLevel: React.Dispatch<React.SetStateAction<number>>
   allWeightedLevels: {[key: string]: number} | null
@@ -23,6 +24,7 @@ export default function ChallengeRanking({
   setCurrentWeightedLevel,
   currentWeightedLevel,
   allWeightedLevels,
+  score,
 }: RankingProps) {
   const [rankPosition, setRankPosition] = useState<number>(1)
   const [timer, setTimer] = useState<number>(0)
@@ -56,7 +58,6 @@ export default function ChallengeRanking({
   }, [previousCompetitors, user?.id])
 
   useEffect(() => {
-    console.log(currentWeightedLevel)
     if (nextWeightedLevelThreshold && timer > nextWeightedLevelThreshold) {
       setCurrentWeightedLevel((prev) => prev + 1)
       setNextWeightedLevelThreshold(() => {
@@ -105,6 +106,7 @@ export default function ChallengeRanking({
             setTimer={setTimer}
             challengeId={challengeId}
             userId={userId}
+            score={score}
           />
           {currentResultOrdering &&
             currentResultOrdering.map((competitor, index) => (

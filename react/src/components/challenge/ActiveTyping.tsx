@@ -1,5 +1,6 @@
 import React, {useEffect, useState} from 'react'
 import {encodeHtmlEntities} from '@/lib/helperFunctions.tsx'
+import BoostMeter from '@/components/challenge/BoostMeter.tsx'
 
 type ChallengeProgress = {
   currentIndex: number
@@ -25,7 +26,7 @@ type ActiveTypingProps = {
   setCompleted: React.Dispatch<React.SetStateAction<boolean>>
   completed: boolean
   currentWeightedLevel: number
-  allWeightedLevels: {[key: string]: number}
+  allWeightedLevels: {[key: string]: number} | null
 }
 
 export default function ActiveTyping({
@@ -46,6 +47,8 @@ export default function ActiveTyping({
 }: ActiveTypingProps) {
   const [initialErrorIndex, setInitialErrorIndex] = useState<number>(-1)
   const [lastKey, setLastKey] = useState<string | null>()
+  const [boostProgress, setBoostProgress] = useState<number>(0)
+  const [currentBoostLevel, setCurrentBoostLevel] = useState<number>(1)
 
   useEffect(() => {
     setProgressString(
@@ -64,12 +67,19 @@ export default function ActiveTyping({
     const userInput = event.target.value
     setInputValue(userInput)
 
-    if (userInput === activeString.substring(0, userInput.length)) {
-      console.log(lastKey)
+    if (
+      userInput === activeString.substring(0, userInput.length) &&
+      allWeightedLevels
+    ) {
       if (lastKey !== 'Backspace') {
         setScore((prev) => prev + allWeightedLevels[currentWeightedLevel])
+        setBoostProgress((prev) => prev + 5)
+        // setBoostProgress((prev) => prev + 20)
       } else {
-        setScore((prev) => prev - allWeightedLevels[currentWeightedLevel])
+        setScore(
+          (prev) =>
+            prev - allWeightedLevels[currentWeightedLevel] * currentBoostLevel
+        )
       }
       setInitialErrorIndex(-1)
       const matchedString = `<mark class='highlight'>${encodeHtmlEntities(userInput)}</mark>`
@@ -94,6 +104,8 @@ export default function ActiveTyping({
       }
     } else {
       // Error scenario
+      setBoostProgress(0)
+      setCurrentBoostLevel(1)
       const errorIndex =
         initialErrorIndex === -1 ? userInput.length - 1 : initialErrorIndex
       if (initialErrorIndex === -1) {
@@ -110,16 +122,25 @@ export default function ActiveTyping({
   }
 
   return (
-    <div className="mt-14 flex w-full justify-center">
-      <input
-        className="w-full rounded p-4 outline outline-2 outline-offset-2 outline-blue-500"
-        type="text"
-        onChange={handleChange}
-        // onPaste={handleCopyPaste}
-        value={inputValue}
-        disabled={completed}
-        onKeyDown={(e) => setLastKey(e.key)}
+    <>
+      <BoostMeter
+        completed={completed}
+        boostProgress={boostProgress}
+        setBoostProgress={setBoostProgress}
+        setCurrentBoostLevel={setCurrentBoostLevel}
+        currentBoostLevel={currentBoostLevel}
       />
-    </div>
+      <div className="mt-14 flex w-full justify-center">
+        <input
+          className="w-full rounded p-4 outline outline-2 outline-offset-2 outline-blue-500"
+          type="text"
+          onChange={handleChange}
+          // onPaste={handleCopyPaste}
+          value={inputValue}
+          disabled={completed}
+          onKeyDown={(e) => setLastKey(e.key)}
+        />
+      </div>
+    </>
   )
 }

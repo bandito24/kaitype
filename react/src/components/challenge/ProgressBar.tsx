@@ -8,14 +8,9 @@ type ChallengeProgress = {
 type Props = {
   challengeProgression: ChallengeProgress
   completed: boolean
-  score: number
 }
 
-export default function ProgressBar({
-  challengeProgression,
-  completed,
-  score,
-}: Props) {
+export default function ProgressBar({challengeProgression, completed}: Props) {
   const [progressValue, setProgressValue] = useState<number>(0)
 
   useEffect(() => {
@@ -30,7 +25,6 @@ export default function ProgressBar({
 
   return (
     <div className="mb-24">
-      <p>Score currently is: {score}</p>
       <div className="flex h-14 w-96 justify-start overflow-hidden rounded-full bg-gray-400">
         <div
           style={{

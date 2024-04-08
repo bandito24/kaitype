@@ -27,6 +27,7 @@ export default function Challenge() {
     [key: string]: number
   }>(null)
   const [currentWeightedLevel, setCurrentWeightedLevel] = useState<number>(1)
+  const [score, setScore] = useState<number>(0)
   const {id} = useParams()
 
   function calculateWeightedLevels(charCount: number) {
@@ -36,7 +37,6 @@ export default function Challenge() {
       levels[i] = levelCount - i + 1
     }
     if (levelCount === 0) levels['1'] = 1
-    console.log(levels)
     return levels
   }
 
@@ -71,12 +71,14 @@ export default function Challenge() {
             setCurrentWeightedLevel={setCurrentWeightedLevel}
             currentWeightedLevel={currentWeightedLevel}
             allWeightedLevels={allWeightedLevels}
+            score={score}
           />
           <TypeWindow
             challengeContent={challengeMetadata.submission}
             completed={completed}
             setCompleted={setCompleted}
             setInProgress={setInProgress}
+            setScore={setScore}
             allWeightedLevels={allWeightedLevels}
             currentWeightedLevel={currentWeightedLevel}
           />

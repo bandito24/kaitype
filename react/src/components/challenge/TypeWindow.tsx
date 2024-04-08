@@ -23,8 +23,9 @@ type Props = {
   completed: boolean
   setCompleted: React.Dispatch<React.SetStateAction<boolean>>
   setInProgress: React.Dispatch<React.SetStateAction<boolean>>
+  setScore: React.Dispatch<React.SetStateAction<number>>
   currentWeightedLevel: number
-  allWeightedLevels: {[key: string]: number}
+  allWeightedLevels: {[key: string]: number} | null
 }
 
 export default function TypeWindow({
@@ -32,6 +33,7 @@ export default function TypeWindow({
   completed,
   setCompleted,
   setInProgress,
+  setScore,
   currentWeightedLevel,
   allWeightedLevels,
 }: Props) {
@@ -44,7 +46,6 @@ export default function TypeWindow({
     })
   const [inputValue, setInputValue] = useState('')
   const [activeString, setActiveString] = useState<string>('')
-  const [score, setScore] = useState<number>(0)
 
   function formatChallengeContentJson(challengeJson) {
     return JSON.parse(challengeJson)
@@ -71,7 +72,6 @@ export default function TypeWindow({
             <ProgressBar
               challengeProgression={challengeProgression}
               completed={completed}
-              score={score}
             />
             <ActiveString progressString={progressString} />
             <ActiveTyping

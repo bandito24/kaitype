@@ -10,6 +10,7 @@ type Props = {
   rankPosition: number
   userId: number
   challengeId: number
+  score: number
 }
 
 export default function CurrentAttemptCompetitor({
@@ -19,6 +20,7 @@ export default function CurrentAttemptCompetitor({
   setTimer,
   rankPosition,
   userId,
+  score,
   challengeId,
 }: Props) {
   useEffect(() => {
@@ -47,12 +49,12 @@ export default function CurrentAttemptCompetitor({
             <p className="truncate text-sm font-medium text-gray-900 dark:text-white">
               {rankPosition + 1}. {'CURRENT'}
             </p>
-            {/*<p className="truncate text-sm text-gray-500 dark:text-gray-400">*/}
-            {/*  email@windster.com*/}
-            {/*</p>*/}
+            <p className="truncate text-sm text-gray-500 dark:text-gray-400">
+              {timeTool.formatMilliseconds(timer)}
+            </p>
           </div>
           <div className="box-content inline-flex w-[80px] items-center text-base font-semibold text-gray-700 dark:text-white">
-            {timeTool.formatMilliseconds(timer)}
+            {score}
           </div>
         </div>
       </li>
