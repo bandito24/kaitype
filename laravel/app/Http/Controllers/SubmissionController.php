@@ -17,9 +17,9 @@ class SubmissionController extends Controller
 
         $previousResults = ChallengeScore::with('user')
             ->where('submission_id', $id)
-            ->orderBy('milliseconds')
+            ->orderBy('merit', 'desc')
             ->orderBy('updated_at')
-            ->get(['user_id', 'milliseconds', 'updated_at']);
+            ->get(['user_id', 'milliseconds', 'merit', 'updated_at']);
 
         $previousResults->formatMilliseconds();
         $transformedSubmissions = ChallengeScoreResource::collection($previousResults);

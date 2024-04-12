@@ -3,6 +3,7 @@ type Competitor = {
   username: string
   currentPosition: number | null | undefined
   competitorId: number
+  merit: number
 }
 type Props = {
   competitor: Competitor
@@ -30,9 +31,12 @@ export default function PreviousCompetitor({competitor, userId}: Props) {
                 FORMER ATTEMPT
               </p>
             )}
+            <p className="truncate text-sm text-gray-500 dark:text-gray-400">
+              {competitor.formattedTime}
+            </p>
           </div>
           <div className="box-content inline-flex w-[80px] items-center text-base font-semibold text-gray-700 dark:text-white">
-            {competitor.formattedTime}
+            {competitor.merit}
           </div>
         </div>
       </li>

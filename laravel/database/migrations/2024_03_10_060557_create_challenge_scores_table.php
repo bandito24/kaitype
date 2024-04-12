@@ -15,11 +15,11 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->foreignId('submission_id')->constrained()->cascadeOnDelete();
+            $table->unsignedInteger('merit');
             $table->unsignedInteger('milliseconds');
             $table->timestamps();
 
-            // Define the composite primary key
-//            $table->primary(['user_id', 'submission_id']);
+
         });
     }
 

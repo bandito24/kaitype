@@ -1,6 +1,7 @@
 import React, {useEffect, useState} from 'react'
 import {encodeHtmlEntities} from '@/lib/helperFunctions.tsx'
 import BoostMeter from '@/components/challenge/BoostMeter.tsx'
+import {boostColorValues} from '@/components/utilities/boostColors.tsx'
 
 type ChallengeProgress = {
   currentIndex: number
@@ -49,6 +50,15 @@ export default function ActiveTyping({
   const [lastKey, setLastKey] = useState<string | null>()
   const [boostProgress, setBoostProgress] = useState<number>(0)
   const [currentBoostLevel, setCurrentBoostLevel] = useState<number>(1)
+  const [boostColor, setBoostColor] = useState<string>(boostColorValues['1'])
+  const [backgroundBoostColor, setBackgroundBoostColor] =
+    useState<string>('#9CA3AF')
+  const initialBackground = '#9CA3AF'
+  const [progressBarkey, setProgressBarKey] = useState(0) // Initial key
+
+  const rerenderBar = () => {
+    setProgressBarKey((prevKey) => prevKey + 1) // Increment the key to force re-render
+  }
 
   useEffect(() => {
     setProgressString(
@@ -61,6 +71,41 @@ export default function ActiveTyping({
   //     // event.preventDefault();
   //     // alert('No cheating')
   // };
+
+  useEffect(() => {
+    if (!completed) {
+      const intervalId = setInterval(() => {
+        if (boostProgress >= 100) {
+          rerenderBar()
+          setCurrentBoostLevel((prev) => prev * 2)
+          setBoostProgress(0)
+          setBoostColor(boostColorValues[currentBoostLevel * 2])
+          setBackgroundBoostColor(boostColorValues[currentBoostLevel])
+          // flagged = true
+        } else if (boostProgress <= 0) {
+          if (currentBoostLevel > 1) {
+            rerenderBar()
+            setBoostProgress(100)
+            setCurrentBoostLevel((prev) => prev / 2)
+          }
+          setBoostColor(
+            boostColorValues[currentBoostLevel / 2] ?? boostColorValues[1]
+          )
+          setBackgroundBoostColor(
+            boostColorValues[currentBoostLevel / 4] ?? initialBackground
+          )
+        }
+        setBoostProgress((prev) => {
+          if (prev > 0) {
+            return prev - 1
+          } else {
+            return 0
+          }
+        })
+      }, 100)
+      return () => clearInterval(intervalId)
+    }
+  }, [completed, boostProgress, currentBoostLevel])
 
   const handleChange = (event) => {
     if (completed) return
@@ -124,11 +169,11 @@ export default function ActiveTyping({
   return (
     <>
       <BoostMeter
-        completed={completed}
         boostProgress={boostProgress}
-        setBoostProgress={setBoostProgress}
-        setCurrentBoostLevel={setCurrentBoostLevel}
         currentBoostLevel={currentBoostLevel}
+        boostColor={boostColor}
+        backgroundBoostColor={backgroundBoostColor}
+        key={progressBarkey}
       />
       <div className="mt-14 flex w-full justify-center">
         <input

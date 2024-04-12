@@ -19,6 +19,7 @@ export type PreviousCompetitorType = {
   formatted_time: string
   milliseconds: number
   username: string
+  merit: number
   currentPosition?: number
 }
 

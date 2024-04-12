@@ -35,8 +35,8 @@ export default function CurrentAttemptCompetitor({
   const timeTool = new TimeFormatter()
 
   return (
-    <div>
-      <li className="py-3 sm:py-4">
+    <div className="bg-green-200 pl-4">
+      <li className="box-border py-3 sm:py-4">
         <div className="flex items-center">
           <div className="flex-shrink-0">
             <img

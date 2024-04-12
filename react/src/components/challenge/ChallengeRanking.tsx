@@ -1,4 +1,4 @@
-import {useEffect, useState} from 'react'
+import {useEffect, useRef, useState} from 'react'
 import PreviousCompetitor from '@/components/challenge/PreviousCompetitor.tsx'
 
 import CurrentAttemptCompetitor from '@/components/challenge/CurrentAttemptCompetitor.tsx'
@@ -39,6 +39,7 @@ export default function ChallengeRanking({
     number | null
   >(null)
   const {user} = useStateContext()
+  const scrollRef = useRef<HTMLUListElement>(null)
 
   useEffect(() => {
     if (user?.id) {
@@ -46,7 +47,7 @@ export default function ChallengeRanking({
     }
     const orderedResults = previousCompetitors.map((obj, index) => ({
       ...obj,
-      currentPosition: index + 2,
+      currentPosition: index + 1,
     }))
     setCurrentResultOrdering(orderedResults)
     setOriginalResultOrdering(orderedResults)
@@ -55,6 +56,17 @@ export default function ChallengeRanking({
     } else {
       setNextWeightedLevelThreshold(null)
     }
+    const scrollToBottom = () => {
+      if (scrollRef && scrollRef.current) {
+        const scroll = scrollRef.current
+        const scrollHeight = scroll.scrollHeight
+        scroll.scrollTo({
+          top: scrollHeight,
+          behavior: 'smooth',
+        })
+      }
+    }
+    scrollToBottom()
   }, [previousCompetitors, user?.id])
 
   useEffect(() => {
@@ -70,7 +82,7 @@ export default function ChallengeRanking({
     }
 
     let currentPosition = previousCompetitors.findIndex(
-      (previousResult) => previousResult.milliseconds > timer * 10
+      (previousResult) => score > previousResult.merit
     )
     if (currentPosition === -1) {
       currentPosition = previousCompetitors.length
@@ -80,7 +92,7 @@ export default function ChallengeRanking({
       setRankPosition(currentPosition)
 
       if (originalResultOrdering) {
-        const trimmedOrdering = originalResultOrdering.slice(currentPosition)
+        const trimmedOrdering = originalResultOrdering.slice(0, currentPosition)
         setCurrentResultOrdering(trimmedOrdering)
       }
     }
@@ -95,8 +107,23 @@ export default function ChallengeRanking({
       </div>
       <div className="flow-root">
         <ul
+          ref={scrollRef}
           role="list"
-          className="divide-y divide-gray-200 dark:divide-gray-700">
+          className="no-scrollbar h-[800px] divide-y divide-gray-200 overflow-y-scroll dark:divide-gray-700">
+          {currentResultOrdering &&
+            currentResultOrdering.map((competitor, index) => (
+              <PreviousCompetitor
+                key={index}
+                competitor={{
+                  competitorId: competitor.user_id,
+                  formattedTime: competitor.formatted_time,
+                  username: competitor.username,
+                  currentPosition: competitor?.currentPosition,
+                  merit: competitor.merit,
+                }}
+                userId={userId}
+              />
+            ))}
           <CurrentAttemptCompetitor
             key={1}
             rankPosition={rankPosition}
@@ -108,19 +135,6 @@ export default function ChallengeRanking({
             userId={userId}
             score={score}
           />
-          {currentResultOrdering &&
-            currentResultOrdering.map((competitor, index) => (
-              <PreviousCompetitor
-                key={index}
-                competitor={{
-                  competitorId: competitor.user_id,
-                  formattedTime: competitor.formatted_time,
-                  username: competitor.username,
-                  currentPosition: competitor?.currentPosition,
-                }}
-                userId={userId}
-              />
-            ))}
         </ul>
       </div>
     </div>
