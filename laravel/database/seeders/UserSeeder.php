@@ -68,7 +68,7 @@ class UserSeeder extends Seeder
                         'user_id' => $newUser->id,
                         'submission_id' => $submission->id,
                         'milliseconds' => $score,
-                        'merit' => rand(0,20000),
+                        'merit' => rand(0,20),
                         'created_at' => now(),
                         'updated_at' => now()
                     ]);

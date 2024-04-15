@@ -24,7 +24,7 @@ export default function BoostMeter({
               backgroundColor: `${boostColor}`,
               transition: 'width 400ms linear', // Conditionally set the transition property
             }}
-            className="z-50 w-96 rounded-full">
+            className="z-30 w-96 rounded-full">
             {'\u00A0'}
           </div>
         </div>

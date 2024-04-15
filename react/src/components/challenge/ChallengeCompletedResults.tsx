@@ -2,23 +2,31 @@ import {useEffect, useState} from 'react'
 import axiosClient from '@/services/axios-client.tsx'
 import TimeFormatter from '@/components/utilities/TimeFormatter.tsx'
 import {PreviousCompetitorType} from '@/lib/types.tsx'
+import PreviousCompetitor from '@/components/challenge/PreviousCompetitor.tsx'
+import {Button} from '@/components/ui/button.tsx'
+import {Link} from 'react-router-dom'
 
 type Props = {
   timer: number
   userId: number
   challengeId: number
+  score: number
 }
 type ChallengeCompleteResponse = {
   loggedIn: boolean
   timeDifference: number
+  meritDifference: number
   currentRanking: number
+  merit: number
   updatedSubmissions: PreviousCompetitorType[]
+  previousScores: {merit: number; milliseconds: number}
 }
 
 export default function ChallengeCompletedResults({
   timer,
   userId,
   challengeId,
+  score,
 }: Props) {
   const [challengeResults, setChallengeResults] =
     useState<ChallengeCompleteResponse | null>(null)
@@ -30,14 +38,16 @@ export default function ChallengeCompletedResults({
           user_id: userId,
           submission_id: challengeId,
           milliseconds: timer * 10,
+          merit: score,
         })
         const {data} = response
-        setChallengeResults(data)
-        console.log(
-          'last time result: ',
-          data.updatedSubmissions[0].milliseconds
-        )
-        console.log('time difference: ', data.timeDifference)
+        setChallengeResults((prevResults) => {
+          if (!prevResults) {
+            return data
+          }
+          return prevResults
+        })
+        console.log(data)
       } catch (e) {
         console.error(e)
       }
@@ -46,143 +56,86 @@ export default function ChallengeCompletedResults({
   }, [])
 
   const timeTool = new TimeFormatter()
+  function getValueWithSuffix(number) {
+    const lastDigit = number % 10
+    const lastTwoDigits = number % 100
+
+    // Check for exceptions in the last two digits
+    if (lastTwoDigits === 11 || lastTwoDigits === 12 || lastTwoDigits === 13) {
+      return 'th'
+    }
+    switch (lastDigit) {
+      case 1:
+        return number + 'st'
+      case 2:
+        return number + 'nd'
+      case 3:
+        return number + 'rd'
+      default:
+        return number + 'th'
+    }
+  }
 
   return (
     challengeResults && (
       <div className="absolute inset-0 z-50 mx-auto my-auto w-full max-w-md rounded-lg border border-gray-200 bg-white p-4 shadow dark:border-gray-700 dark:bg-gray-800 sm:p-8">
         <div className="mb-4 flex flex-col items-center justify-between">
           <h5 className="text-xl font-bold leading-none text-gray-900 dark:text-white">
-            Nice job! You finished with the time of{' '}
-            {timeTool.stringifyMilliseconds(timer)}
+            Nice job! You finished with {challengeResults.merit} merit.
           </h5>
-          {challengeResults.timeDifference && (
-            <h6 className="text-xl font-bold leading-none text-gray-900 dark:text-white">
-              {challengeResults.timeDifference > 0
-                ? `You were ${timeTool.stringifyMilliseconds(challengeResults.timeDifference / 10)} slower than last time. We'll keep your previous fastest time`
-                : `You were ${timeTool.stringifyMilliseconds(Math.abs(challengeResults.timeDifference / 10))} faster than last time! Bravo.`}
+          {challengeResults.previousScores && (
+            <h4 className="text-xl font-bold leading-none text-gray-900 dark:text-white">
+              {challengeResults.meritDifference > 0
+                ? `That's ${challengeResults.meritDifference} more merit than last time. Bravo!`
+                : `That's ${challengeResults.meritDifference < 0 ? Math.abs(challengeResults.meritDifference) + ' less merit than ' : ' the same merit as '} your best. ${
+                    challengeResults.meritDifference === 0 &&
+                    challengeResults.timeDifference < 0
+                      ? `But you were faster by ${timeTool.stringifyMilliseconds(Math.abs(challengeResults.timeDifference / 10))}.`
+                      : `We'll save your best result of ${challengeResults.merit}.`
+                  }`}
+              <br />
+            </h4>
+          )}
+          <h4>
+            This gives you the current ranking of{' '}
+            {getValueWithSuffix(challengeResults.currentRanking)} place.
+          </h4>
+          <h6>Finishing Time: {timeTool.stringifyMilliseconds(timer)}</h6>
+          {challengeResults.previousScores && (
+            <h6>
+              Previous Time:{' '}
+              {timeTool.stringifyMilliseconds(
+                challengeResults.previousScores.milliseconds / 10
+              )}
             </h6>
           )}
-          <a
-            href="#"
-            className="text-sm font-medium text-blue-600 hover:underline dark:text-blue-500">
-            View all
-          </a>
         </div>
         <div className="flow-root">
           <ul
             role="list"
             className="divide-y divide-gray-200 dark:divide-gray-700">
-            <li className="py-3 sm:py-4">
-              <div className="flex items-center">
-                <div className="flex-shrink-0">
-                  <img
-                    className="h-8 w-8 rounded-full"
-                    src="/test_avatar1.jpeg"
-                    alt="Neil image"
-                  />
-                </div>
-                <div className="ms-4 min-w-0 flex-1">
-                  <p className="truncate text-sm font-medium text-gray-900 dark:text-white">
-                    Neil Sims
-                  </p>
-                  <p className="truncate text-sm text-gray-500 dark:text-gray-400">
-                    email@windster.com
-                  </p>
-                </div>
-                <div className="inline-flex items-center text-base font-semibold text-gray-900 dark:text-white">
-                  $320
-                </div>
-              </div>
-            </li>
-            <li className="py-3 sm:py-4">
-              <div className="flex items-center ">
-                <div className="flex-shrink-0">
-                  <img
-                    className="h-8 w-8 rounded-full"
-                    src="/test_avatar1.jpeg"
-                    alt="Bonnie image"
-                  />
-                </div>
-                <div className="ms-4 min-w-0 flex-1">
-                  <p className="truncate text-sm font-medium text-gray-900 dark:text-white">
-                    Bonnie Green
-                  </p>
-                  <p className="truncate text-sm text-gray-500 dark:text-gray-400">
-                    email@windster.com
-                  </p>
-                </div>
-                <div className="inline-flex items-center text-base font-semibold text-gray-900 dark:text-white">
-                  $3467
-                </div>
-              </div>
-            </li>
-            <li className="py-3 sm:py-4">
-              <div className="flex items-center">
-                <div className="flex-shrink-0">
-                  <img
-                    className="h-8 w-8 rounded-full"
-                    src="/test_avatar1.jpeg"
-                    alt="Michael image"
-                  />
-                </div>
-                <div className="ms-4 min-w-0 flex-1">
-                  <p className="truncate text-sm font-medium text-gray-900 dark:text-white">
-                    Michael Gough
-                  </p>
-                  <p className="truncate text-sm text-gray-500 dark:text-gray-400">
-                    email@windster.com
-                  </p>
-                </div>
-                <div className="inline-flex items-center text-base font-semibold text-gray-900 dark:text-white">
-                  $67
-                </div>
-              </div>
-            </li>
-            <li className="py-3 sm:py-4">
-              <div className="flex items-center ">
-                <div className="flex-shrink-0">
-                  <img
-                    className="h-8 w-8 rounded-full"
-                    src="/test_avatar1.jpeg"
-                    alt="Lana image"
-                  />
-                </div>
-                <div className="ms-4 min-w-0 flex-1">
-                  <p className="truncate text-sm font-medium text-gray-900 dark:text-white">
-                    Lana Byrd
-                  </p>
-                  <p className="truncate text-sm text-gray-500 dark:text-gray-400">
-                    email@windster.com
-                  </p>
-                </div>
-                <div className="inline-flex items-center text-base font-semibold text-gray-900 dark:text-white">
-                  $367
-                </div>
-              </div>
-            </li>
-            <li className="pb-0 pt-3 sm:pt-4">
-              <div className="flex items-center ">
-                <div className="flex-shrink-0">
-                  <img
-                    className="h-8 w-8 rounded-full"
-                    src="/test_avatar1.jpeg"
-                    alt="Thomas image"
-                  />
-                </div>
-                <div className="ms-4 min-w-0 flex-1">
-                  <p className="truncate text-sm font-medium text-gray-900 dark:text-white">
-                    Thomes Lean
-                  </p>
-                  <p className="truncate text-sm text-gray-500 dark:text-gray-400">
-                    email@windster.com
-                  </p>
-                </div>
-                <div className="inline-flex items-center text-base font-semibold text-gray-900 dark:text-white">
-                  $2367
-                </div>
-              </div>
-            </li>
+            {challengeResults.updatedSubmissions.map((competitor, index) => (
+              <PreviousCompetitor
+                key={index}
+                competitor={{
+                  competitorId: competitor.user_id,
+                  formattedTime: competitor.formatted_time,
+                  username: competitor.username,
+                  currentPosition: index + 1,
+                  merit: competitor.merit,
+                }}
+                userId={userId}
+              />
+            ))}
           </ul>
+        </div>
+        <div className="mt-5 flex justify-start">
+          <Link to="/submit">
+            <Button className="mr-10">Continue</Button>
+          </Link>
+          <Link to="/submit">
+            <Button>Try Again</Button>
+          </Link>
         </div>
       </div>
     )

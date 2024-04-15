@@ -31,7 +31,7 @@ export default function ProgressBar({challengeProgression, completed}: Props) {
             width: `${progressValue}%`,
             transition: 'width 400ms ease-in-out',
           }}
-          className="z-50 rounded-full bg-blue-600">
+          className="z-30 rounded-full bg-blue-600">
           {'\u00A0'}
         </div>
       </div>

@@ -43,40 +43,46 @@ class ChallengeScoreController extends Controller
         $timeDifference = null;
 
         if ($loggedIn) {
-            $previousRecord = ChallengeScore::where('user_id', $request['user_id'])
+            $previousScores = ChallengeScore::where('user_id', $request['user_id'])
                 ->where('submission_id', $request['submission_id'])
-                ->value('milliseconds');
+                ->select('merit', 'milliseconds')
+                ->first();
 
-            if ($previousRecord) {
-                $timeDifference = $request['milliseconds'] - $previousRecord;
+            if ($previousScores) {
+                $timeDifference = $request['milliseconds'] - $previousScores->milliseconds;
+                $meritDifference = $request['merit'] - $previousScores->merit;
             }
 
-            if (!$timeDifference || $timeDifference < 0) {
+            if (!$previousScores || $meritDifference > 0 || ($meritDifference === 0 && $timeDifference < 0)) {
                 ChallengeScore::updateOrCreate([
                     'user_id' => $request['user_id'],
                     'submission_id' => $request['submission_id']
                 ], [
                     'milliseconds' => $request['milliseconds'],
+                    'merit' => $request['merit']
                 ]);
             }
         }
         $pastSubmissions = ChallengeScore::with('user')
             ->where('submission_id', $request['submission_id'])
-            ->get(['user_id', 'milliseconds', 'updated_at']);
+            ->get(['user_id', 'milliseconds', 'updated_at', 'merit']);
 
 
         if (!$loggedIn) {
             $anonymousAdd = collect([
                 'user_id' => $request['user_id'] ?? -1,
                 'milliseconds' => $request['milliseconds'],
+                'merit' => $request['merit'],
                 'updated_at' => now()
             ]);
             $pastSubmissions->push($anonymousAdd);
         }
-        $pastSubmissions = $pastSubmissions->sortBy(
+
+
+        $pastSubmissions = $pastSubmissions->sortBy([
+            ['merit', 'desc'],
             ['milliseconds', 'asc'],
-            ['updated_at', 'asc']
-        )->values();
+        ])->values();
 
         $formattedPastSubmissions = $pastSubmissions->formatMilliseconds();
         $this->includeUserInfo($formattedPastSubmissions);
@@ -86,10 +92,13 @@ class ChallengeScoreController extends Controller
         return response([
             'status' => 'success',
             'user_id' => $request['user_id'],
+            'merit' => $request['merit'],
             'currentRanking' => $currentRanking,
             'updatedSubmissions' => $formattedPastSubmissions->values()->all(),
-            'timeDifference' => $timeDifference,
+            'timeDifference' => $timeDifference ?? null,
+            'meritDifference' => $meritDifference ?? null,
             'loggedIn' => $loggedIn,
+            'previousScores' => $previousScores ?? null
         ]);
 
 

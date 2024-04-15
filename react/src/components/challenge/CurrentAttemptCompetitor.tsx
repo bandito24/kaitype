@@ -60,6 +60,7 @@ export default function CurrentAttemptCompetitor({
       </li>
       {completed && (
         <ChallengeCompletedResults
+          score={score}
           timer={timer}
           userId={userId}
           challengeId={challengeId}
