@@ -28,6 +28,8 @@ type ActiveTypingProps = {
   completed: boolean
   currentWeightedLevel: number
   allWeightedLevels: {[key: string]: number} | null
+  stringCompleted: boolean
+  setStringCompleted: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 export default function ActiveTyping({
@@ -45,6 +47,8 @@ export default function ActiveTyping({
   completed,
   currentWeightedLevel,
   allWeightedLevels,
+  stringCompleted,
+  setStringCompleted,
 }: ActiveTypingProps) {
   const [initialErrorIndex, setInitialErrorIndex] = useState<number>(-1)
   const [lastKey, setLastKey] = useState<string | null>()
@@ -107,14 +111,42 @@ export default function ActiveTyping({
     }
   }, [completed, boostProgress, currentBoostLevel])
 
+  function progressLevel() {
+    if (
+      challengeProgression.currentIndex ===
+      challengeProgression.totalIndex - 1
+    ) {
+      setInProgress(false)
+      setCompleted(true)
+    } else {
+      setChallengeProgression((prev) => ({
+        ...prev,
+        currentIndex: prev.currentIndex + 1,
+      }))
+      setInputValue('')
+    }
+  }
+
+  function handleKeyDown(e) {
+    setLastKey(e.key)
+    if (e.key === 'Enter' && stringCompleted) {
+      console.log('yessir')
+      progressLevel()
+      setStringCompleted(false)
+      return
+    }
+  }
+
   const handleChange = (event) => {
     if (completed) return
+
     const userInput = event.target.value
     setInputValue(userInput)
 
     if (
       userInput === activeString.substring(0, userInput.length) &&
-      allWeightedLevels
+      allWeightedLevels &&
+      userInput.length <= activeString.length
     ) {
       if (lastKey !== 'Backspace') {
         setScore((prev) => prev + allWeightedLevels[currentWeightedLevel])
@@ -133,19 +165,7 @@ export default function ActiveTyping({
       )
       setProgressString(matchedString + remainingString)
       if (userInput.length === activeString.length) {
-        if (
-          challengeProgression.currentIndex ===
-          challengeProgression.totalIndex - 1
-        ) {
-          setInProgress(false)
-          setCompleted(true)
-        } else {
-          setChallengeProgression((prev) => ({
-            ...prev,
-            currentIndex: prev.currentIndex + 1,
-          }))
-          setInputValue('')
-        }
+        setStringCompleted(true)
       }
     } else {
       // Error scenario
@@ -156,6 +176,7 @@ export default function ActiveTyping({
       if (initialErrorIndex === -1) {
         setInitialErrorIndex(userInput.length - 1)
       }
+      setStringCompleted(false)
 
       const errorFlag = `<mark class='error-highlight'>${encodeHtmlEntities(activeString.substring(errorIndex, userInput.length))}</mark>`
       setProgressString(
@@ -183,7 +204,7 @@ export default function ActiveTyping({
           // onPaste={handleCopyPaste}
           value={inputValue}
           disabled={completed}
-          onKeyDown={(e) => setLastKey(e.key)}
+          onKeyDown={(e) => handleKeyDown(e)}
         />
       </div>
     </>

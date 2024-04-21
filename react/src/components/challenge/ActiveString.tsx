@@ -1,13 +1,49 @@
+import {useEffect, useState} from 'react'
+import {encodeHtmlEntities} from '@/lib/helperFunctions.tsx'
 
 type ActiveStringProps = {
-    progressString: string
+  progressString: string
+  jsonChallengeContent: string
+  challengeProgression: {currentIndex: number; totalIndex: number}
 }
 
-export default function ActiveString({progressString}: ActiveStringProps) {
+export default function ActiveString({
+  progressString,
+  jsonChallengeContent,
+  challengeProgression,
+}: ActiveStringProps) {
+  const [contentArr, setContentArr] = useState<string[] | null>(null)
+  const [currentProgressLine, setCurrentProgressLine] = useState<number>(0)
 
-    return (
-        <>
-            <h2 className="text-center text-2xl" dangerouslySetInnerHTML={{ __html: progressString }}></h2>
-        </>
-    )
+  useEffect(() => {
+    if (!contentArr) {
+      setContentArr(() => JSON.parse(jsonChallengeContent))
+    }
+  }, [contentArr])
+
+  useEffect(() => {
+    if (contentArr) {
+      setCurrentProgressLine(challengeProgression.currentIndex)
+    }
+  }, [challengeProgression])
+
+  return (
+    <div className="absolute z-50">
+      <pre>
+        {contentArr &&
+          contentArr.map((string, index) => (
+            <p
+              className="text-left"
+              key={index}
+              style={{color: index >= currentProgressLine ? 'gray' : 'black'}}
+              dangerouslySetInnerHTML={{
+                __html:
+                  index === currentProgressLine
+                    ? progressString
+                    : encodeHtmlEntities(string),
+              }}></p>
+          ))}
+      </pre>
+    </div>
+  )
 }

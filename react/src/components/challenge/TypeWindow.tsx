@@ -46,6 +46,7 @@ export default function TypeWindow({
     })
   const [inputValue, setInputValue] = useState('')
   const [activeString, setActiveString] = useState<string>('')
+  const [stringCompleted, setStringCompleted] = useState<boolean>(false)
 
   function formatChallengeContentJson(challengeJson) {
     return JSON.parse(challengeJson)
@@ -73,7 +74,11 @@ export default function TypeWindow({
               challengeProgression={challengeProgression}
               completed={completed}
             />
-            <ActiveString progressString={progressString} />
+            <ActiveString
+              progressString={progressString}
+              jsonChallengeContent={challengeContent.content}
+              challengeProgression={challengeProgression}
+            />
             <ActiveTyping
               setProgressString={setProgressString}
               setChallengeProgression={setChallengeProgression}
@@ -89,6 +94,8 @@ export default function TypeWindow({
               setScore={setScore}
               currentWeightedLevel={currentWeightedLevel}
               allWeightedLevels={allWeightedLevels}
+              stringCompleted={stringCompleted}
+              setStringCompleted={setStringCompleted}
             />
           </>
         )}
@@ -96,6 +103,7 @@ export default function TypeWindow({
       <Keyboard
         activeString={activeString}
         inputValue={inputValue}
+        stringCompleted={stringCompleted}
       />
     </div>
   )

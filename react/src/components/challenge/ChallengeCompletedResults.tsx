@@ -5,6 +5,7 @@ import {PreviousCompetitorType} from '@/lib/types.tsx'
 import PreviousCompetitor from '@/components/challenge/PreviousCompetitor.tsx'
 import {Button} from '@/components/ui/button.tsx'
 import {Link} from 'react-router-dom'
+import {getValueWithSuffix} from '@/lib/helperFunctions.tsx'
 
 type Props = {
   timer: number
@@ -56,25 +57,6 @@ export default function ChallengeCompletedResults({
   }, [])
 
   const timeTool = new TimeFormatter()
-  function getValueWithSuffix(number) {
-    const lastDigit = number % 10
-    const lastTwoDigits = number % 100
-
-    // Check for exceptions in the last two digits
-    if (lastTwoDigits === 11 || lastTwoDigits === 12 || lastTwoDigits === 13) {
-      return 'th'
-    }
-    switch (lastDigit) {
-      case 1:
-        return number + 'st'
-      case 2:
-        return number + 'nd'
-      case 3:
-        return number + 'rd'
-      default:
-        return number + 'th'
-    }
-  }
 
   return (
     challengeResults && (
@@ -130,11 +112,16 @@ export default function ChallengeCompletedResults({
           </ul>
         </div>
         <div className="mt-5 flex justify-start">
-          <Link to="/submit">
+          <Link to="/browse">
             <Button className="mr-10">Continue</Button>
           </Link>
-          <Link to="/submit">
-            <Button>Try Again</Button>
+          <Button
+            className="mr-10"
+            onClick={() => window.location.reload()}>
+            Try Again
+          </Button>
+          <Link to={`/challenge/${challengeId}/discuss`}>
+            <Button className="mr-10">Discuss</Button>
           </Link>
         </div>
       </div>

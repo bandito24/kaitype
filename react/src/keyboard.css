@@ -41,6 +41,9 @@
     border: #535bf2 solid 4px !important;
     box-sizing: border-box;
 }
+.keyboard__row .completed-return{
+    background-color: #5ced73 !important;
+}
 
 
 
