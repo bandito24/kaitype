@@ -39,5 +39,7 @@ Route::get('/submission/{id}', [SubmissionController::class, 'show']);
 Route::get('/challengeScores/{submission_id}', [ChallengeScoreController::class, 'show']);
 Route::post('/completedChallenge', [ChallengeScoreController::class, 'store']);
 
+Route::get('/discussion/{submission_id}', [ChallengeScoreController::class, 'index']);
+
 
 

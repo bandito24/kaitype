@@ -55,7 +55,7 @@ class UserSeeder extends Seeder
             $score = 2000;
             for ($i = 0; $i < $javaSubmissions->count(); $i++) {
 //                $newUser = User::factory()->create();
-                $testName = $names[rand(0, 20)] . rand(1,2000);
+                $testName = $names[rand(0, 19)] . rand(1,2000);
                 $newUser = User::create([
                     'email' => $testName . '@gmail.com',
                     'email_verified_at' => now(),

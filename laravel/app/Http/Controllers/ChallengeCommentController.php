@@ -10,9 +10,23 @@ class ChallengeCommentController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $attributes = $request->validate([
+            'submission_id' => ['required', 'exists:challenge_comments,id'],
+        ]);
+        $challengeComments = ChallengeComment::with(['user' => function ($query) {
+        $query->select('id', 'username');
+        }])
+            ->where('submission_id', $attributes['submission_id'])
+            ->get();
+
+
+        return response([
+            'status' => 'success',
+            'challengeComments' => $challengeComments
+        ]);
+
     }
 
     /**
@@ -20,18 +34,8 @@ class ChallengeCommentController extends Controller
      */
     public function create(Request $request)
     {
-        $attributes = $request->validate([
-            'content' => ['required', 'max: 255'],
-            'userId' => ['required']
-        ]);
-        if(isset($request['parentId'])){
-            $attributes[] = $request['parentId'];
-        }
-        ChallengeComment::create([
-            'content' => $attributes['content'],
-            'user_id' => $attributes['userId'],
 
-        ]);
+
 
 
     }
@@ -41,7 +45,18 @@ class ChallengeCommentController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $attributes = $request->validate([
+            'content' => ['required', 'max: 500'],
+            'userId' => ['required'],
+            'challengeId' => ['required', 'exists:challenge_comments,id'],
+        ]);
+
+        ChallengeComment::create([
+            'content' => $attributes['content'],
+            'user_id' => $attributes['userId'],
+            'submission_id' => $attributes['challengeId']
+        ]);
+
     }
 
     /**

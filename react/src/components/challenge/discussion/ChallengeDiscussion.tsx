@@ -1,7 +1,14 @@
 import DiscussionComment from '@/components/challenge/discussion/DiscussionComment.tsx'
 import {Button} from '@/components/ui/button.tsx'
+import {useEffect, useState} from 'react'
+import axiosClient from '@/services/axios-client.tsx'
 
 export default function ChallengeDiscussion() {
+  const [commentsLoaded, setCommentsLoaded] = useState<boolean>(false)
+  useEffect(() => {
+    const results = await axiosClient('/')
+  }, [])
+
   return (
     <div>
       <section className="bg-white py-8 antialiased dark:bg-gray-900 lg:py-16">
@@ -25,11 +32,6 @@ export default function ChallengeDiscussion() {
                 placeholder="Write a comment..."
                 required></textarea>
             </div>
-            {/*<button*/}
-            {/*  type="submit"*/}
-            {/*  className="bg-primary-700 focus:ring-primary-200 dark:focus:ring-primary-900 hover:bg-primary-800 inline-flex items-center rounded-lg px-4 py-2.5 text-center text-xs font-medium text-black text-white focus:ring-4">*/}
-            {/*  Post comment*/}
-            {/*</button>*/}
             <Button>Post Comment</Button>
             <DiscussionComment />
           </form>

@@ -11,10 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('challenge_comments', function (Blueprint $table) {
+        Schema::create('challenge_comment_replies', function (Blueprint $table) {
             $table->id();
             $table->string('content', 500);
-            $table->foreignId('submission_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('parent_id')->constrained('challenge_comments')->cascadeOnDelete();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->boolean('has_response')->default(false);
             $table->boolean('edited')->default(false);
@@ -27,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('challenge_comments');
+        Schema::dropIfExists('challenge_comment_replies');
     }
 };
