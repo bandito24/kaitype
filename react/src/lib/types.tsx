@@ -3,9 +3,22 @@ export type UserType = {
   id: number
 }
 
-export type ErrorObject = {
-  [key: string]: Array<string> // Here, 'key' is a string representing the error field name, and 'any[]' is an array of variable values.
+export type Comment = {
+  id: number
+  content: string
+  username: string
+  created_at: string
+  has_response: boolean | null
+  edited: boolean | null
+  user: {id: number; username: string}
 }
+
+export type ErrorObject =
+  | {
+      [key: string]: Array<string> // Here, 'key' is a string representing the error field name, and 'any[]' is an array of variable values.
+    }
+  | string
+  | string[]
 
 export type RetrievedCategory = {
   id: number

@@ -1,13 +1,80 @@
 import DiscussionComment from '@/components/challenge/discussion/DiscussionComment.tsx'
 import {Button} from '@/components/ui/button.tsx'
-import {useEffect, useState} from 'react'
-import axiosClient from '@/services/axios-client.tsx'
+import {
+  fetchChallengeDiscussion,
+  postChallengeDiscussion,
+} from '@/services/api.tsx'
+import {useNavigate, useParams} from 'react-router-dom'
+import {useEffect, useRef, useState} from 'react'
+import {useMutation, useQuery, useQueryClient} from '@tanstack/react-query'
+import {ErrorObject} from '@/lib/types.tsx'
+import {Comment} from '@/lib/types.tsx'
+import ErrorList from '@/components/utilities/ErrorList.tsx'
+import {useStateContext} from '@/contexts/contextProvider.tsx'
 
 export default function ChallengeDiscussion() {
-  const [commentsLoaded, setCommentsLoaded] = useState<boolean>(false)
+  const [comments, setComments] = useState<Comment[] | null>(null)
+  const [errors, setErrors] = useState<ErrorObject>({})
+  const {id: challengeId} = useParams()
+  const queryClient = useQueryClient()
+  const navigate = useNavigate()
+  const {user} = useStateContext()
+  const {status, data: commentResponse} = useQuery({
+    queryFn: () => fetchChallengeDiscussion(challengeId!),
+    queryKey: ['challengeDiscussion', challengeId],
+  })
+  const commentContentRef = useRef<HTMLTextAreaElement>(null)
+
+  const {mutateAsync: storeComment} = useMutation({
+    mutationFn: postChallengeDiscussion,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ['challengeDiscussion', challengeId],
+      })
+    },
+    onError: (error: any) => {
+      if (error.response.status === 401) {
+        setErrors('You need to sign in to post a comment')
+      } else {
+        setErrors('Something went wrong on our end. Apologies')
+      }
+    },
+    onSettled: () => {
+      if (commentContentRef.current) {
+        commentContentRef.current.value = ''
+      }
+    },
+  })
+
   useEffect(() => {
-    const results = await axiosClient('/')
+    if (!challengeId) navigate('/')
   }, [])
+
+  useEffect(() => {
+    console.log(commentResponse)
+    if (commentResponse && status === 'success')
+      setComments(commentResponse.challengeComments)
+  }, [commentResponse])
+
+  async function onSubmit(e) {
+    e.preventDefault()
+    if (!user?.id) {
+      setErrors('You need to sign in to post a comment')
+      return
+    }
+    if (!commentContentRef.current?.value) {
+      setErrors("Your didn't write anything yet...")
+      return
+    }
+    const content = commentContentRef.current.value
+    if (!challengeId || !content) return
+    const response = await storeComment({
+      challengeId: challengeId,
+      content: commentContentRef?.current.value,
+      isReply: false,
+    })
+    console.log(response)
+  }
 
   return (
     <div>
@@ -15,10 +82,12 @@ export default function ChallengeDiscussion() {
         <div className="mx-auto max-w-2xl px-4">
           <div className="mb-6 flex items-center justify-between">
             <h2 className="text-lg font-bold text-gray-900 dark:text-white lg:text-2xl">
-              Discussion (20)
+              Discussion {comments && `(${comments?.length})`}
             </h2>
           </div>
-          <form className="mb-6">
+          <form
+            className="mb-6"
+            onSubmit={(e) => onSubmit(e)}>
             <div className="mb-4 rounded-lg rounded-t-lg border border-gray-200 bg-white px-4 py-2 dark:border-gray-700 dark:bg-gray-800">
               <label
                 htmlFor="comment"
@@ -26,6 +95,7 @@ export default function ChallengeDiscussion() {
                 Your comment
               </label>
               <textarea
+                ref={commentContentRef}
                 id="comment"
                 rows={6}
                 className="w-full border-0 px-0 text-sm text-gray-900 focus:outline-none focus:ring-0 dark:bg-gray-800 dark:text-white dark:placeholder-gray-400"
@@ -33,8 +103,29 @@ export default function ChallengeDiscussion() {
                 required></textarea>
             </div>
             <Button>Post Comment</Button>
-            <DiscussionComment />
+            {Object.keys(errors).length > 0 && <ErrorList errors={errors} />}
+            {comments && comments.length === 0 && (
+              <div className="mt-48 flex  h-auto w-full items-center justify-center">
+                <img
+                  className="w-48"
+                  src="/empty-comment-cat.svg"
+                  alt="Empty Comments"
+                />
+                <h5 className="text-custom-gray text-lg font-extrabold">
+                  Wow, es muy empty
+                </h5>
+              </div>
+            )}
           </form>
+          {comments &&
+            comments.length > 0 &&
+            comments.map((comment: Comment) => (
+              <DiscussionComment
+                key={comment.id}
+                comment={comment}
+                userId={user?.id ?? null}
+              />
+            ))}
         </div>
       </section>
     </div>

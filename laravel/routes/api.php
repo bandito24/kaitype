@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ChallengeCommentController;
 use App\Http\Controllers\ChallengeScoreController;
 use App\Http\Controllers\SubmissionCategoryController;
 use App\Http\Controllers\SubmissionController;
@@ -25,6 +26,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::post('/signout', [AuthController::class, 'signout']);
     Route::post('/createSubmission', [SubmissionController::class, 'create']);
+    Route::post('/discussion/store', [ChallengeCommentController::class, 'store']);
+    Route::patch('/discussion/patch', [ChallengeCommentController::class, 'edit']);
+
 });
 
 Route::post('/signup', [AuthController::class, 'signup']);
@@ -39,7 +43,8 @@ Route::get('/submission/{id}', [SubmissionController::class, 'show']);
 Route::get('/challengeScores/{submission_id}', [ChallengeScoreController::class, 'show']);
 Route::post('/completedChallenge', [ChallengeScoreController::class, 'store']);
 
-Route::get('/discussion/{submission_id}', [ChallengeScoreController::class, 'index']);
+Route::get('/discussion/{submission_id}', [ChallengeCommentController::class, 'index']);
+
 
 
 

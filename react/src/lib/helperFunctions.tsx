@@ -26,3 +26,10 @@ export function getValueWithSuffix(number) {
       return number + 'th'
   }
 }
+
+export function destructureErrorObject(errorObject: any) {
+  let errors = errorObject.response.data?.errors
+  if (!errors) errors = errorObject.response.data?.message
+  if (!errors) errors = errorObject.response.data
+  return errors
+}

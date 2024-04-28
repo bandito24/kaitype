@@ -8,5 +8,6 @@ use Illuminate\Database\Eloquent\Model;
 class ChallengeCommentReply extends Model
 {
     use HasFactory;
+
     protected $guarded = [];
 }
