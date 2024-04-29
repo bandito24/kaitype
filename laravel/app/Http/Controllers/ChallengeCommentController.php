@@ -99,11 +99,6 @@ class ChallengeCommentController extends Controller
         return response(['status' => 'success', 'comment' => $comment]);
 
 
-
-
-
-
-
     }
 
     /**
@@ -117,8 +112,18 @@ class ChallengeCommentController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(ChallengeComment $challengeComment)
+    public function destroy($postId)
     {
-        //
+
+        $comment = ChallengeComment::where('id', $postId)->first();
+        if(!$comment) return response(['error' => "Something went wrong on our end. Apologies"], 403);
+        if($comment->user_id !== auth()->user()->id){
+            return response(['error' => "You do not have access to this resource"], 404);
+        }
+
+        $comment->delete();
+
+        return response(['status' => 'success', 'message' => 'comment deleted']);
+
     }
 }

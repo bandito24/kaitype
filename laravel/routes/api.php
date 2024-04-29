@@ -26,8 +26,10 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::post('/signout', [AuthController::class, 'signout']);
     Route::post('/createSubmission', [SubmissionController::class, 'create']);
+
     Route::post('/discussion/store', [ChallengeCommentController::class, 'store']);
     Route::patch('/discussion/patch', [ChallengeCommentController::class, 'edit']);
+    Route::delete('/discussion/delete/{postID}', [ChallengeCommentController::class, 'destroy']);
 
 });
 

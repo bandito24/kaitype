@@ -44,3 +44,7 @@ export async function editChallengeDiscussion(editedPost: {
   const {data} = axiosReesponse
   return data
 }
+
+export async function deleteComment(postId: number) {
+  return await axiosClient.delete(`/discussion/delete/${postId}`)
+}

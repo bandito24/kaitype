@@ -1,14 +1,49 @@
 import {useState} from 'react'
 import {Comment} from '@/lib/types.tsx'
 import EditingComment from '@/components/challenge/discussion/EditingComment.tsx'
+import {useMutation, useQueryClient} from '@tanstack/react-query'
+import ErrorList from '@/components/utilities/ErrorList.tsx'
+import {deleteComment} from '@/services/api.tsx'
+import {destructureErrorObject} from '@/lib/helperFunctions.tsx'
 
-type Props = {comment: Comment; userId: number | null}
+type Props = {
+  comment: Comment
+  userId: number | null
+  challengeId: string | undefined
+}
 
-export default function DiscussionComment({comment, userId}: Props) {
+export default function DiscussionComment({
+  comment,
+  userId,
+  challengeId,
+}: Props) {
   const [showSelfCommentOptions, setShowSelfCommentOptions] =
     useState<boolean>(false)
   const isOwnPost = comment.user.id === userId
   const [editingPost, setEditingPost] = useState<boolean>(false)
+  const queryClient = useQueryClient()
+  const [errors, setErrors] = useState<string | null>(null)
+
+  const {mutateAsync: deleteAsync} = useMutation({
+    mutationFn: deleteComment,
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({
+        queryKey: ['challengeDiscussion', challengeId],
+      })
+      console.log(data)
+    },
+    onError: (e: any) => {
+      setErrors(destructureErrorObject(e))
+    },
+  })
+
+  async function handleDelete() {
+    if (comment.has_response) {
+      setErrors("You can't remove a comment after someone has replied to it")
+      return
+    }
+    await deleteAsync(comment.id)
+  }
 
   return (
     <>
@@ -72,7 +107,9 @@ export default function DiscussionComment({comment, userId}: Props) {
                     className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">
                     Edit
                   </li>
-                  <li className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">
+                  <li
+                    className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+                    onClick={async () => await handleDelete()}>
                     Remove
                   </li>
                 </ul>
@@ -110,6 +147,7 @@ export default function DiscussionComment({comment, userId}: Props) {
             Reply
           </button>
         </div>
+        {errors && <ErrorList errors={errors} />}
       </article>
     </>
   )

@@ -111,7 +111,7 @@ export default function ChallengeDiscussion() {
                   src="/empty-comment-cat.svg"
                   alt="Empty Comments"
                 />
-                <h5 className="text-custom-gray text-lg font-extrabold">
+                <h5 className="text-lg font-extrabold text-custom-gray">
                   Wow, es muy empty
                 </h5>
               </div>
@@ -124,6 +124,7 @@ export default function ChallengeDiscussion() {
                 key={comment.id}
                 comment={comment}
                 userId={user?.id ?? null}
+                challengeId={challengeId}
               />
             ))}
         </div>
