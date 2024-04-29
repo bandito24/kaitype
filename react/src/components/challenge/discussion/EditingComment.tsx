@@ -17,7 +17,7 @@ export default function EditingComment({
   postId,
   setEditingPost,
 }: Props) {
-  const initialValue = existingContent
+
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const [errors, setErrors] = useState<ErrorObject>()
   const {id: challengeId} = useParams()
