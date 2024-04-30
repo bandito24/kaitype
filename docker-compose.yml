@@ -1,0 +1,68 @@
+services:
+  db:
+    image: 'mysql:latest'
+    container_name: mysql
+    environment:
+      MYSQL_DATABASE: '${MYSQL_DATABASE}'
+      MYSQL_USER: '${MYSQL_USER}'
+      MYSQL_PASSWORD: '${MYSQL_PASSWORD}'
+      MYSQL_ALLOW_EMPTY_PASSWORD: 0
+    volumes:
+      - '${DB_VOLUME_PATH}:/var/lib/mysql'
+      - '${SQL_DUMP_PATH}:/docker-entrypoint-initdb.d'
+    ports:
+      - '3306:3306'
+    networks:
+      - 'kaitype-server'
+
+
+  laravel:
+    depends_on:
+      - db
+    build:
+      context: ./laravel
+      dockerfile: Dockerfile
+    container_name: laravel
+    volumes:
+      - '${LARAVEL_ROOT}:/app'
+#      - './xdebug.ini:/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini'
+    ports:
+      - '8000:8000'
+    networks:
+      - 'kaitype-server'
+    command: php artisan serve --host=0.0.0.0 --port=8000
+
+
+  phpmyadmin:
+    depends_on:
+      - db
+    image: 'phpmyadmin/phpmyadmin'
+    ports:
+      - '8001:80'
+    environment:
+      - PMA_HOST=db
+      - PMA_PORT=3306
+    networks:
+      - 'kaitype-server'
+
+  react:
+    depends_on:
+      - db
+    build:
+      context: ./react
+    container_name: react
+    volumes:
+      - /app/node_modules
+      - '${REACT_ROOT}:/app'
+    ports:
+      - '8080:8080'
+    networks:
+      - 'kaitype-server'
+    environment:
+      CHOKIDAR_USEPOLLING: "true"
+
+
+
+networks:
+  kaitype-server:
+    driver: bridge
