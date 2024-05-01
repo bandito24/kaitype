@@ -1,31 +1,24 @@
-import {useState} from 'react'
+import {useEffect, useState} from 'react'
 import {Comment} from '@/lib/types.tsx'
 import EditingComment from '@/components/challenge/discussion/EditingComment.tsx'
-import {useMutation, useQueryClient} from '@tanstack/react-query'
+import {useMutation, useQuery, useQueryClient} from '@tanstack/react-query'
 import ErrorList from '@/components/utilities/ErrorList.tsx'
-import {deleteComment} from '@/services/api.tsx'
+import {deleteComment, loadCommentReplies} from '@/services/api.tsx'
 import {destructureErrorObject} from '@/lib/helperFunctions.tsx'
 import ReplyingComment from '@/components/challenge/discussion/ReplyingComment.tsx'
-import {Button} from '@/components/ui/button.tsx'
 
 type Props = {
   comment: Comment
   userId: number | null
   challengeId: string | undefined
+  setComments: React.Dispatch<React.SetStateAction<Comment[] | []>>
 }
-
-// function ReplyComment(props: {
-//   setEditingPost: (value: ((prevState: boolean) => boolean) | boolean) => void
-//   postId: number
-//   existingContent: string
-// }) {
-//   return null
-// }
 
 export default function DiscussionComment({
   comment,
   userId,
   challengeId,
+  setComments,
 }: Props) {
   const [showSelfCommentOptions, setShowSelfCommentOptions] =
     useState<boolean>(false)
@@ -49,12 +42,26 @@ export default function DiscussionComment({
     },
   })
 
+  const {data: replyData, error: replyLoadError} = useQuery({
+    queryKey: ['discussionReply', comment.id],
+    queryFn: () => loadCommentReplies,
+  })
+
+  useEffect(() => {
+    console.log(replyData)
+    console.log(replyLoadError)
+  }, [replyData, replyLoadError])
+
   async function handleDelete() {
     if (comment.has_response) {
       setErrors("You can't remove a comment after someone has replied to it")
       return
     }
     await deleteAsync(comment.id)
+  }
+
+  async function handleLoadComment() {
+    await loadCommentReplies(comment.id)
   }
 
   return (
@@ -163,7 +170,9 @@ export default function DiscussionComment({
             Reply
           </button>
           {comment.has_response && (
-            <button className="flex items-center text-sm font-medium text-gray-500 hover:underline dark:text-gray-400">
+            <button
+              className="flex items-center text-sm font-medium text-gray-500 hover:underline dark:text-gray-400"
+              onClick={() => handleLoadComment()}>
               <svg
                 version="1.1"
                 viewBox="0 0 1200 1200"

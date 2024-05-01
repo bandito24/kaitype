@@ -13,7 +13,7 @@ import ErrorList from '@/components/utilities/ErrorList.tsx'
 import {useStateContext} from '@/contexts/contextProvider.tsx'
 
 export default function ChallengeDiscussion() {
-  const [comments, setComments] = useState<Comment[] | null>(null)
+  const [comments, setComments] = useState<Comment[] | []>([])
   const [errors, setErrors] = useState<ErrorObject>({})
   const {id: challengeId} = useParams()
   const queryClient = useQueryClient()
@@ -126,6 +126,7 @@ export default function ChallengeDiscussion() {
                 comment={comment}
                 userId={user?.id ?? null}
                 challengeId={challengeId}
+                setComments={setComments}
               />
             ))}
         </div>

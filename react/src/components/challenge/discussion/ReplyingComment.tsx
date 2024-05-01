@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState} from 'react'
+import React, {useRef, useState} from 'react'
 import {Button} from '@/components/ui/button.tsx'
 import {useMutation, useQueryClient} from '@tanstack/react-query'
 import {createCommentReply} from '@/services/api.tsx'
@@ -30,19 +30,13 @@ export default function ReplyingComment({
       setErrors('')
     },
     onError: (error: any) => {
-      console.error(error)
+      if (error.response.status === 401) {
+        setErrors('Please sign in to comment')
+        return
+      }
       setErrors(destructureErrorObject(error))
     },
   })
-
-  // useEffect(() => {
-  //   console.log('id', parentId)
-  //   const textarea = textareaRef.current
-  //   if (textarea) {
-  //     textarea.style.height = 'auto'
-  //     textarea.style.height = `${textarea.scrollHeight}px`
-  //   }
-  // }, [existingContent])
 
   async function handleSubmit(e) {
     e.preventDefault()

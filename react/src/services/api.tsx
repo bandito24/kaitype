@@ -55,3 +55,7 @@ export async function createCommentReply(replyInfo: {
 }) {
   return await axiosClient.post('/discussion/reply/store', replyInfo)
 }
+
+export async function loadCommentReplies(parentId: number) {
+  return await axiosClient.get(`/discussion/reply/index/${parentId}`)
+}

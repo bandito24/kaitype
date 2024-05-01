@@ -50,6 +50,8 @@ Route::post('/completedChallenge', [ChallengeScoreController::class, 'store']);
 
 Route::get('/discussion/{submission_id}', [ChallengeCommentController::class, 'index']);
 
+Route::get('/discussion/reply/index/{parentId}', [ChallengeCommentReplyController::class, 'index']);
+
 
 
 

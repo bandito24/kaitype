@@ -2,20 +2,24 @@
 
 namespace App\Http\Controllers;
 
+use App\Exceptions\CustomException;
 use App\Models\ChallengeComment;
 use App\Models\ChallengeCommentReply;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use mysql_xdevapi\Exception;
 
 class ChallengeCommentReplyController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index($parentId)
     {
-        //
+        $replies = ChallengeCommentReply::where('parent_id', $parentId)->get();
+        return response([
+            'status' => 'success',
+            'comments' => $replies
+        ]);
     }
 
     /**
@@ -38,7 +42,7 @@ class ChallengeCommentReplyController extends Controller
         ]);
         $user = auth()->user();
         $userId = $user->id;
-        if(!$userId) return response('Please sign in to reply', 401);
+
 
         DB::beginTransaction();
         try{
