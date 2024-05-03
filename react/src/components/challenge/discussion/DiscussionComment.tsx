@@ -45,7 +45,6 @@ export default function DiscussionComment({
 
   const fetchReplies = useCallback(async () => {
     const result = await loadCommentReplies(comment.id)
-    console.log(result)
     setReplies(result.data.comments)
   }, [comment.id])
 
