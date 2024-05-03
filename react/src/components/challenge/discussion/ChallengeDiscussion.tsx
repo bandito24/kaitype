@@ -126,7 +126,7 @@ export default function ChallengeDiscussion() {
                 comment={comment}
                 userId={user?.id ?? null}
                 challengeId={challengeId}
-                setComments={setComments}
+                depth={0}
               />
             ))}
         </div>

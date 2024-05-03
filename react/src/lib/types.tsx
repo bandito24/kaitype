@@ -10,6 +10,7 @@ export type Comment = {
   created_at: string
   has_response: boolean | null
   edited: boolean | null
+  user_id: number
   user: {id: number; username: string}
 }
 

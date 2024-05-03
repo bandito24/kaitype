@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Exceptions\CustomException;
+use App\Http\Resources\ChallengeCommentResource;
 use App\Models\ChallengeComment;
 use App\Models\ChallengeCommentReply;
 use Illuminate\Http\Request;
@@ -15,10 +16,17 @@ class ChallengeCommentReplyController extends Controller
      */
     public function index($parentId)
     {
-        $replies = ChallengeCommentReply::where('parent_id', $parentId)->get();
+        $replies = ChallengeCommentReply::with(['user' => function($query){
+            $query->select('id', 'username');
+        }])
+        ->where('parent_id', $parentId)
+        ->get();
+
+
+
         return response([
             'status' => 'success',
-            'comments' => $replies
+            'comments' => ChallengeCommentResource::collection($replies)
         ]);
     }
 

@@ -1,7 +1,7 @@
-import {useEffect, useState} from 'react'
+import {useCallback, useState} from 'react'
 import {Comment} from '@/lib/types.tsx'
 import EditingComment from '@/components/challenge/discussion/EditingComment.tsx'
-import {useMutation, useQuery, useQueryClient} from '@tanstack/react-query'
+import {useMutation, useQueryClient} from '@tanstack/react-query'
 import ErrorList from '@/components/utilities/ErrorList.tsx'
 import {deleteComment, loadCommentReplies} from '@/services/api.tsx'
 import {destructureErrorObject} from '@/lib/helperFunctions.tsx'
@@ -11,22 +11,23 @@ type Props = {
   comment: Comment
   userId: number | null
   challengeId: string | undefined
-  setComments: React.Dispatch<React.SetStateAction<Comment[] | []>>
+  depth: number
 }
 
 export default function DiscussionComment({
   comment,
   userId,
   challengeId,
-  setComments,
+  depth,
 }: Props) {
   const [showSelfCommentOptions, setShowSelfCommentOptions] =
     useState<boolean>(false)
-  const isOwnPost = comment.user.id === userId
+  const isOwnPost = comment.user_id === userId
   const [editingPost, setEditingPost] = useState<boolean>(false)
   const queryClient = useQueryClient()
   const [errors, setErrors] = useState<string | null>(null)
   const [replyingToComment, setReplyingToComment] = useState<boolean>(false)
+  const [replies, setReplies] = useState<Comment[] | []>([])
 
   const {mutateAsync: deleteAsync} = useMutation({
     mutationFn: deleteComment,
@@ -42,15 +43,11 @@ export default function DiscussionComment({
     },
   })
 
-  const {data: replyData, error: replyLoadError} = useQuery({
-    queryKey: ['discussionReply', comment.id],
-    queryFn: () => loadCommentReplies,
-  })
-
-  useEffect(() => {
-    console.log(replyData)
-    console.log(replyLoadError)
-  }, [replyData, replyLoadError])
+  const fetchReplies = useCallback(async () => {
+    const result = await loadCommentReplies(comment.id)
+    console.log(result)
+    setReplies(result.data.comments)
+  }, [comment.id])
 
   async function handleDelete() {
     if (comment.has_response) {
@@ -60,12 +57,8 @@ export default function DiscussionComment({
     await deleteAsync(comment.id)
   }
 
-  async function handleLoadComment() {
-    await loadCommentReplies(comment.id)
-  }
-
   return (
-    <>
+    <div className={`ml-${depth * 4}`}>
       <article className="rounded-lg bg-white p-6 text-base dark:bg-gray-900">
         <footer className="mb-2 flex items-center justify-between">
           <div className="flex items-center">
@@ -172,7 +165,10 @@ export default function DiscussionComment({
           {comment.has_response && (
             <button
               className="flex items-center text-sm font-medium text-gray-500 hover:underline dark:text-gray-400"
-              onClick={() => handleLoadComment()}>
+              onClick={(e) => {
+                e.preventDefault()
+                fetchReplies()
+              }}>
               <svg
                 version="1.1"
                 viewBox="0 0 1200 1200"
@@ -197,6 +193,16 @@ export default function DiscussionComment({
         )}
         {errors && <ErrorList errors={errors} />}
       </article>
-    </>
+      {replies.length > 0 &&
+        replies.map((reply: Comment) => (
+          <DiscussionComment
+            key={reply.id}
+            comment={reply}
+            userId={userId}
+            challengeId={challengeId}
+            depth={depth + 1}
+          />
+        ))}
+    </div>
   )
 }
