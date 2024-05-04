@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('content', 500);
             $table->foreignId('submission_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('parent_id')->default(null)->constrained('challenge_comments')->cascadeOnDelete();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->boolean('has_response')->default(false);
             $table->boolean('edited')->default(false);

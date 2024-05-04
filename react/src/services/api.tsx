@@ -37,11 +37,8 @@ export async function editChallengeDiscussion(editedPost: {
   postId: number
   content: string
 }) {
-  const axiosReesponse = await axiosClient.patch(
-    '/discussion/patch',
-    editedPost
-  )
-  const {data} = axiosReesponse
+  const axiosResponse = await axiosClient.patch('/discussion/patch', editedPost)
+  const {data} = axiosResponse
   return data
 }
 
@@ -52,6 +49,7 @@ export async function deleteComment(postId: number) {
 export async function createCommentReply(replyInfo: {
   parentId: number
   content: string
+  isTopComment: boolean
 }) {
   return await axiosClient.post('/discussion/reply/store', replyInfo)
 }

@@ -28,6 +28,7 @@ export default function DiscussionComment({
   const [errors, setErrors] = useState<string | null>(null)
   const [replyingToComment, setReplyingToComment] = useState<boolean>(false)
   const [replies, setReplies] = useState<Comment[] | []>([])
+  const isTopComment = !comment?.parent_id
 
   const {mutateAsync: deleteAsync} = useMutation({
     mutationFn: deleteComment,
@@ -43,10 +44,17 @@ export default function DiscussionComment({
     },
   })
 
-  const fetchReplies = useCallback(async () => {
+  // const fetchReplies = useCallback(async () => {
+  //   const result = await loadCommentReplies(comment.id)
+  //   console.log(result.data.comments)
+  //   setReplies(result.data.comments)
+  // }, [comment.id])
+  async function fetchReplies() {
+    console.log(comment.id)
     const result = await loadCommentReplies(comment.id)
+    console.log(result.data.comments)
     setReplies(result.data.comments)
-  }, [comment.id])
+  }
 
   async function handleDelete() {
     if (comment.has_response) {
@@ -57,7 +65,7 @@ export default function DiscussionComment({
   }
 
   return (
-    <div className={`ml-${depth * 4}`}>
+    <div style={{marginLeft: `${depth * 40}px`}}>
       <article className="rounded-lg bg-white p-6 text-base dark:bg-gray-900">
         <footer className="mb-2 flex items-center justify-between">
           <div className="flex items-center">
@@ -185,6 +193,7 @@ export default function DiscussionComment({
         {replyingToComment && (
           <div className="mt-2">
             <ReplyingComment
+              isTopComment={isTopComment}
               parentId={comment.id}
               setReplyingToComment={setReplyingToComment}
             />

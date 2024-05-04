@@ -10,10 +10,12 @@ import {destructureErrorObject} from '@/lib/helperFunctions.tsx'
 type Props = {
   parentId: number
   setReplyingToComment: React.Dispatch<React.SetStateAction<boolean>>
+  isTopComment: boolean
 }
 export default function ReplyingComment({
   parentId,
   setReplyingToComment,
+  isTopComment,
 }: Props) {
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const [errors, setErrors] = useState<ErrorObject>()
@@ -44,7 +46,11 @@ export default function ReplyingComment({
       setErrors("Your reply can't be empty")
       return
     }
-    await createReply({parentId: parentId, content: textareaRef.current?.value})
+    await createReply({
+      parentId: parentId,
+      content: textareaRef.current?.value,
+      isTopComment: isTopComment,
+    })
   }
 
   return (

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Resources\ChallengeCommentResource;
 use App\Models\ChallengeComment;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
@@ -23,9 +24,8 @@ class ChallengeCommentController extends Controller
         ])->validate();
 
 
-
         $challengeComments = ChallengeComment::with(['user' => function ($query) {
-        $query->select('id', 'username');
+            $query->select('id', 'username');
         }])
             ->where('submission_id', $submission_id)
             ->get();
@@ -43,8 +43,6 @@ class ChallengeCommentController extends Controller
     {
 
 
-
-
     }
 
     /**
@@ -52,34 +50,63 @@ class ChallengeCommentController extends Controller
      */
     public function store(Request $request)
     {
-        $attributes = $request->validate([
-            'content' => ['required', 'max: 500'],
-            'challengeId' => ['required', 'exists:submissions,id'],
-            'isReply' => ['required', 'boolean'],
-        ]);
-        $user = auth()->user();
-        if(!$user) return response(['status' => 'user not found'], 403);
+        try {
+            $attributes = $request->validate([
+                'content' => ['required', 'max: 500'],
+                'challengeId' => ['required', 'exists:submissions,id'],
+            ]);
+            $user = auth()->user();
 
-        $comment = ChallengeComment::create([
-            'content' => $attributes['content'],
-            'submission_id' => $attributes['challengeId'],
-            'user_id' => $user->id
-        ]);
+            DB::beginTransaction();
 
-        return response([
-            'status' => 'success',
-            'comment' => $comment,
-            'user' => $user
-        ], 202);
+            $rowAttributes = [
+                'content' => $attributes['content'],
+                'submission_id' => $attributes['challengeId'],
+                'user_id' => $user->id
+            ];
 
+            if (isset($request['parentId'])) {
+                $request->validate([
+                    'parentId' => ['required', 'exists:challenge_comments,id'],
+                ]);
+                $parentComment = ChallengeComment::where('id', $attributes['parentId'])->first();
+                $parentComment->has_response = 1;
+                $parentComment->save();
+                $rowAttributes['parent_id'] = $request['parentId'];
+            }
+            $comment = ChallengeComment::create($rowAttributes);
+
+            DB::commit();
+            return response([
+                'status' => 'success',
+                'comment' => $comment,
+                'user' => $user,
+                'parentComment' => $parentComment ?? null
+            ], 201);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ]);
+        }
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(ChallengeComment $challengeComment)
+    public function showReply($parentId)
     {
-        //
+        $replies = ChallengeComment::with(['user' => function($query){
+            $query->select('id', 'username');
+        }])
+            ->where('parent_id', $parentId)
+            ->get();
+
+        return response([
+            'status' => 'success',
+            'comments' => ChallengeCommentResource::collection($replies)
+        ]);
     }
 
     /**
@@ -90,7 +117,7 @@ class ChallengeCommentController extends Controller
     {
 
         $comment = ChallengeComment::where('id', $request['postId'])->first();
-        if(!$comment) return response(['error' => "Something went wrong on our end. Apologies"], 404);
+        if (!$comment) return response(['error' => "Something went wrong on our end. Apologies"], 404);
 
         $comment->edited = 1;
         $comment->content = $request['content'];
@@ -116,8 +143,8 @@ class ChallengeCommentController extends Controller
     {
 
         $comment = ChallengeComment::where('id', $postId)->first();
-        if(!$comment) return response(['error' => "Something went wrong on our end. Apologies"], 403);
-        if($comment->user_id !== auth()->user()->id){
+        if (!$comment) return response(['error' => "Something went wrong on our end. Apologies"], 403);
+        if ($comment->user_id !== auth()->user()->id) {
             return response(['error' => "You do not have access to this resource"], 404);
         }
 
