@@ -18,8 +18,6 @@ return new class extends Migration
             $table->unsignedInteger('merit');
             $table->unsignedInteger('milliseconds');
             $table->timestamps();
-
-
         });
     }
 

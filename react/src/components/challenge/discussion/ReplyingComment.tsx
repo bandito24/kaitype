@@ -1,7 +1,7 @@
 import React, {useRef, useState} from 'react'
 import {Button} from '@/components/ui/button.tsx'
 import {useMutation, useQueryClient} from '@tanstack/react-query'
-import {createCommentReply} from '@/services/api.tsx'
+import {postChallengeDiscussion} from '@/services/api.tsx'
 import {useParams} from 'react-router-dom'
 import ErrorList from '@/components/utilities/ErrorList.tsx'
 import {ErrorObject} from '@/lib/types.tsx'
@@ -10,22 +10,25 @@ import {destructureErrorObject} from '@/lib/helperFunctions.tsx'
 type Props = {
   parentId: number
   setReplyingToComment: React.Dispatch<React.SetStateAction<boolean>>
-  isTopComment: boolean
+  refetch: any
+  setHasResponse: React.Dispatch<React.SetStateAction<boolean>>
 }
 export default function ReplyingComment({
   parentId,
   setReplyingToComment,
-  isTopComment,
+  refetch,
+  setHasResponse,
 }: Props) {
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const [errors, setErrors] = useState<ErrorObject>()
   const {id: challengeId} = useParams()
   const queryClient = useQueryClient()
   const {mutateAsync: createReply} = useMutation({
-    mutationFn: createCommentReply,
-    onSuccess: (body) => {
-      console.log(body)
+    mutationFn: postChallengeDiscussion,
+    onSuccess: () => {
       setReplyingToComment(false)
+      setHasResponse(true)
+      refetch()
       queryClient.invalidateQueries({
         queryKey: ['challengeDiscussion', challengeId],
       })
@@ -49,7 +52,7 @@ export default function ReplyingComment({
     await createReply({
       parentId: parentId,
       content: textareaRef.current?.value,
-      isTopComment: isTopComment,
+      challengeId: challengeId!,
     })
   }
 

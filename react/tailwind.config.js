@@ -21,6 +21,8 @@ module.exports = {
     extend: {
       colors: {
         'custom-gray': 'rgb(200, 201, 203)',
+        voteUp: 'rgb(253, 230, 138)',
+        voteDown: '#ADD8E6',
         border: 'hsl(var(--border))',
         input: 'hsl(var(--input))',
         ring: 'hsl(var(--ring))',

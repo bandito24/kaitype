@@ -11,6 +11,7 @@ export type Comment = {
   has_response: boolean | null
   edited: boolean | null
   user_id: number
+  votes: number
   parent_id?: number | null
   user: {id: number; username: string}
 }

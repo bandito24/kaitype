@@ -20,6 +20,7 @@ class ChallengeCommentResource extends JsonResource
         $array['created_at'] = $this->created_at->diffForHumans();
         $array['edited'] = $array['edited'] === 1;
         $array['has_response'] = $array['has_response'] === 1;
+        $array['votes'] = $this->votes ?? 0;
         return $array;
     }
 }

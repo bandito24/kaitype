@@ -1,9 +1,9 @@
 import axiosClient from '@/services/axios-client.tsx'
 
 type newComment = {
-  isReply: boolean
   content: string
   challengeId: string
+  parentId?: number | null
 }
 
 export async function fetchCategories(page: string) {
@@ -20,8 +20,8 @@ export async function fetchCategories(page: string) {
 export async function fetchChallengeDiscussion(challengeId: string) {
   try {
     const axiosResponse = await axiosClient.get(`/discussion/${challengeId}`)
-    const {data} = axiosResponse
-    return data
+    console.log(axiosResponse)
+    return destructureData(axiosResponse)
   } catch (e) {
     console.error(e)
   }
@@ -42,18 +42,30 @@ export async function editChallengeDiscussion(editedPost: {
   return data
 }
 
-export async function deleteComment(postId: number) {
-  return await axiosClient.delete(`/discussion/delete/${postId}`)
-}
-
-export async function createCommentReply(replyInfo: {
-  parentId: number
-  content: string
-  isTopComment: boolean
+export async function deleteComment(obj: {
+  postId: number
+  parentId: number | null | undefined
 }) {
-  return await axiosClient.post('/discussion/reply/store', replyInfo)
+  console.log(obj)
+  const url =
+    `/discussion/delete?postId=${obj.postId}` +
+    (obj.parentId ? `&parentId=${obj.parentId}` : '')
+  const axiosResponse = await axiosClient.delete(url)
+  return destructureData(axiosResponse)
 }
 
 export async function loadCommentReplies(parentId: number) {
   return await axiosClient.get(`/discussion/reply/index/${parentId}`)
+}
+
+export async function voteComment(payload: {
+  userId: number
+  direction: 1 | -1
+}) {
+  console.log(payload)
+}
+
+function destructureData(response) {
+  const {data} = response
+  return data
 }

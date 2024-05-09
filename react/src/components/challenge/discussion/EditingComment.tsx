@@ -23,8 +23,9 @@ export default function EditingComment({
   const queryClient = useQueryClient()
   const {mutateAsync: editComment} = useMutation({
     mutationFn: editChallengeDiscussion,
-    onSuccess: () => {
+    onSuccess: (data) => {
       setEditingPost(false)
+      console.log(data)
       queryClient.invalidateQueries({
         queryKey: ['challengeDiscussion', challengeId],
       })

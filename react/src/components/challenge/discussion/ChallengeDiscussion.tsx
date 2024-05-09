@@ -13,17 +13,19 @@ import ErrorList from '@/components/utilities/ErrorList.tsx'
 import {useStateContext} from '@/contexts/contextProvider.tsx'
 
 export default function ChallengeDiscussion() {
-  const [comments, setComments] = useState<Comment[] | []>([])
   const [errors, setErrors] = useState<ErrorObject>({})
   const {id: challengeId} = useParams()
   const queryClient = useQueryClient()
   const navigate = useNavigate()
   const {user} = useStateContext()
-  const {status, data: commentResponse} = useQuery({
+  const commentContentRef = useRef<HTMLTextAreaElement>(null)
+
+  const {data: loadedComments} = useQuery({
     queryFn: () => fetchChallengeDiscussion(challengeId!),
     queryKey: ['challengeDiscussion', challengeId],
   })
-  const commentContentRef = useRef<HTMLTextAreaElement>(null)
+  const comments = loadedComments?.challengeComments
+  const commentCount = loadedComments?.commentCount
 
   const {mutateAsync: storeComment} = useMutation({
     mutationFn: postChallengeDiscussion,
@@ -51,12 +53,6 @@ export default function ChallengeDiscussion() {
     if (!challengeId) navigate('/')
   }, [])
 
-  useEffect(() => {
-    console.log(commentResponse)
-    if (commentResponse && status === 'success')
-      setComments(commentResponse.challengeComments)
-  }, [commentResponse])
-
   async function onSubmit(e) {
     e.preventDefault()
     if (!user?.id) {
@@ -72,7 +68,6 @@ export default function ChallengeDiscussion() {
     const response = await storeComment({
       challengeId: challengeId,
       content: commentContentRef?.current.value,
-      isReply: false,
     })
     console.log(response)
   }
@@ -83,7 +78,7 @@ export default function ChallengeDiscussion() {
         <div className="mx-auto max-w-2xl px-4">
           <div className="mb-6 flex items-center justify-between">
             <h2 className="text-lg font-bold text-gray-900 dark:text-white lg:text-2xl">
-              Discussion {comments && `(${comments?.length})`}
+              Discussion {loadedComments && `(${commentCount})`}
             </h2>
           </div>
           <form
@@ -105,7 +100,7 @@ export default function ChallengeDiscussion() {
             </div>
             <Button>Post Comment</Button>
             {Object.keys(errors).length > 0 && <ErrorList errors={errors} />}
-            {comments && comments.length === 0 && (
+            {loadedComments && commentCount === 0 && (
               <div className="mt-48 flex  h-auto w-full items-center justify-center">
                 <img
                   className="w-48"
@@ -118,8 +113,8 @@ export default function ChallengeDiscussion() {
               </div>
             )}
           </form>
-          {comments &&
-            comments.length > 0 &&
+          {loadedComments &&
+            commentCount &&
             comments.map((comment: Comment) => (
               <DiscussionComment
                 key={comment.id}

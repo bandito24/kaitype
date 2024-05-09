@@ -30,9 +30,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::post('/discussion/store', [ChallengeCommentController::class, 'store']);
     Route::patch('/discussion/patch', [ChallengeCommentController::class, 'edit']);
-    Route::delete('/discussion/delete/{postID}', [ChallengeCommentController::class, 'destroy']);
-
-    Route::post('/discussion/reply/store', [ChallengeCommentReplyController::class, 'store']);
+    Route::delete('/discussion/delete', [ChallengeCommentController::class, 'destroy']);
 
 });
 
@@ -50,7 +48,7 @@ Route::post('/completedChallenge', [ChallengeScoreController::class, 'store']);
 
 Route::get('/discussion/{submission_id}', [ChallengeCommentController::class, 'index']);
 
-Route::get('/discussion/reply/index/{parentId}', [ChallengeCommentReplyController::class, 'index']);
+Route::get('/discussion/reply/index/{parentId}', [ChallengeCommentController::class, 'show']);
 
 
 

@@ -28,9 +28,12 @@ class ChallengeCommentController extends Controller
             $query->select('id', 'username');
         }])
             ->where('submission_id', $submission_id)
+            ->where('parent_id', NULL)
             ->get();
+        $commentCount = ChallengeComment::where('submission_id', $submission_id)->count();
         return response([
-            'challengeComments' => ChallengeCommentResource::collection($challengeComments)
+            'challengeComments' => ChallengeCommentResource::collection($challengeComments),
+            'commentCount' => $commentCount
         ]);
 
 
@@ -69,7 +72,7 @@ class ChallengeCommentController extends Controller
                 $request->validate([
                     'parentId' => ['required', 'exists:challenge_comments,id'],
                 ]);
-                $parentComment = ChallengeComment::where('id', $attributes['parentId'])->first();
+                $parentComment = ChallengeComment::where('id', $request['parentId'])->first();
                 $parentComment->has_response = 1;
                 $parentComment->save();
                 $rowAttributes['parent_id'] = $request['parentId'];
@@ -95,8 +98,9 @@ class ChallengeCommentController extends Controller
     /**
      * Display the specified resource.
      */
-    public function showReply($parentId)
+    public function show($parentId)
     {
+
         $replies = ChallengeComment::with(['user' => function($query){
             $query->select('id', 'username');
         }])
@@ -123,6 +127,7 @@ class ChallengeCommentController extends Controller
         $comment->content = $request['content'];
         $comment->save();
 
+
         return response(['status' => 'success', 'comment' => $comment]);
 
 
@@ -139,18 +144,32 @@ class ChallengeCommentController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy($postId)
+    public function destroy(Request $request)
     {
 
-        $comment = ChallengeComment::where('id', $postId)->first();
-        if (!$comment) return response(['error' => "Something went wrong on our end. Apologies"], 403);
+        $comment = ChallengeComment::where('id', $request->query('postId'))->first();
+        if (!$comment) return response(['error' => "Something went wrong on our end. Apologies"], 404);
         if ($comment->user_id !== auth()->user()->id) {
-            return response(['error' => "You do not have access to this resource"], 404);
+            return response(['error' => "You do not have access to this resource"], 403);
         }
 
         $comment->delete();
 
-        return response(['status' => 'success', 'message' => 'comment deleted']);
+        $children = null;
+        if($request->query('parentId')){
+            $request->validate([
+                'parentId' => ['exists:challenge_comments,id']
+            ]);
+            $parent = ChallengeComment::find($request->query('parentId'));
+            $children = $parent->children->count();
+            if($parent && $parent->children->count() === 0){
+                $parent->has_response = 0;
+                $parent->save();
+            }
+        }
+
+
+        return response(['status' => 'success', 'message' => 'comment deleted', 'childrenLength' => $children]);
 
     }
 }
