@@ -1,5 +1,5 @@
 import {useEffect, useState} from 'react'
-import {Comment} from '@/lib/types.tsx'
+import {Comment, PastVote} from '@/lib/types.tsx'
 import EditingComment from '@/components/challenge/discussion/EditingComment.tsx'
 import {useMutation, useQuery, useQueryClient} from '@tanstack/react-query'
 import ErrorList from '@/components/utilities/ErrorList.tsx'
@@ -15,6 +15,7 @@ type Props = {
   depth: number
   refetchParent?: any
   setParentHasResponse?: React.Dispatch<React.SetStateAction<boolean>>
+  pastVotes: PastVote[] | null | []
 }
 
 export default function DiscussionComment({
@@ -24,6 +25,7 @@ export default function DiscussionComment({
   depth,
   refetchParent,
   setParentHasResponse,
+  pastVotes,
 }: Props) {
   const [showSelfCommentOptions, setShowSelfCommentOptions] =
     useState<boolean>(false)
@@ -36,6 +38,7 @@ export default function DiscussionComment({
     comment.has_response ?? false
   )
   const [childComments, setChildComments] = useState<Comment[]>([])
+  const [showChildVisibility, setShowChildVisibility] = useState<boolean>(true)
 
   const {mutateAsync: deleteAsync} = useMutation({
     mutationFn: deleteComment,
@@ -86,13 +89,19 @@ export default function DiscussionComment({
 
   return (
     <div
-      style={{marginLeft: `${depth * 40}px`}}
+      style={{
+        marginLeft: `${depth * 40}px`,
+      }}
       className="relative">
       <div className="align-center flex">
         <ChallengeVotes
           votes={comment.votes}
           setErrors={setErrors}
           userId={userId}
+          commentId={comment.id}
+          challengeId={challengeId}
+          pastVotes={pastVotes}
+          commentUserId={comment.user_id}
         />
         <article className="rounded-lg bg-white p-6 text-base dark:bg-gray-900">
           <footer className="mb-2 flex items-center justify-between">
@@ -204,7 +213,11 @@ export default function DiscussionComment({
                 className="flex items-center text-sm font-medium text-gray-500 hover:underline dark:text-gray-400"
                 onClick={(e) => {
                   e.preventDefault()
-                  refetch()
+                  if (childComments && childComments.length > 0) {
+                    setShowChildVisibility((prev) => !prev)
+                  } else {
+                    refetch()
+                  }
                 }}>
                 <svg
                   version="1.1"
@@ -216,7 +229,11 @@ export default function DiscussionComment({
                     <path d="m412.08 480h-100.08c-13.586-0.066406-26.559 5.6289-35.711 15.672-9.1484 10.039-13.613 23.488-12.289 37.008 1.5117 12.129 7.4609 23.27 16.703 31.27 9.2383 8 21.117 12.293 33.336 12.051h165.96c25.461 0 49.879-10.113 67.883-28.117 18.004-18.004 28.117-42.422 28.117-67.883v-165.96c0.24219-12.219-4.0508-24.098-12.051-33.336-8-9.2422-19.141-15.191-31.27-16.703-13.52-1.3242-26.969 3.1406-37.008 12.289-10.043 9.1523-15.738 22.125-15.672 35.711v100.08l-182.04-182.04c-12.133-12.133-29.816-16.871-46.391-12.43-16.574 4.4414-29.52 17.387-33.961 33.961-4.4414 16.574 0.29688 34.258 12.43 46.391z" />
                   </g>
                 </svg>
-                View Replies
+                {showChildVisibility &&
+                childComments &&
+                childComments.length > 0
+                  ? 'Hide Replies'
+                  : 'Show Replies'}
               </button>
             )}
           </div>
@@ -237,19 +254,25 @@ export default function DiscussionComment({
           />
         </div>
       )}
-      {childComments &&
-        childComments.length > 0 &&
-        childComments.map((reply: Comment) => (
-          <DiscussionComment
-            key={reply.id}
-            comment={reply}
-            userId={userId}
-            challengeId={challengeId}
-            depth={depth + 1}
-            refetchParent={refetch}
-            setParentHasResponse={setHasResponse}
-          />
-        ))}
+      <div
+        style={{
+          display: `${showChildVisibility ? 'block' : 'none'}`,
+        }}>
+        {childComments &&
+          childComments.length > 0 &&
+          childComments.map((reply: Comment) => (
+            <DiscussionComment
+              key={reply.id}
+              comment={reply}
+              userId={userId}
+              challengeId={challengeId}
+              depth={depth + 1}
+              refetchParent={refetch}
+              setParentHasResponse={setHasResponse}
+              pastVotes={pastVotes}
+            />
+          ))}
+      </div>
     </div>
   )
 }

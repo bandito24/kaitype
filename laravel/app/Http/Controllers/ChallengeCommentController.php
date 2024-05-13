@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\ChallengeCommentResource;
 use App\Models\ChallengeComment;
+use App\Models\PastUserVote;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -16,8 +17,12 @@ class ChallengeCommentController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index($submission_id)
+    public function index(Request $request)
     {
+        try{
+        $submission_id = $request->query('submission_id');
+        if(!$submission_id) throw new \Exception('No submission Id submitted');
+        $userId = $request->query('user_id') ?? null;
 
         Validator::make(['submission_id' => $submission_id], [
             'submission_id' => ['required', 'exists:submissions,id'],
@@ -31,10 +36,19 @@ class ChallengeCommentController extends Controller
             ->where('parent_id', NULL)
             ->get();
         $commentCount = ChallengeComment::where('submission_id', $submission_id)->count();
+        $pastVotes = null;
+        if($userId){
+            $pastVotes = PastUserVote::where(['user_id' => $userId, 'submission_id' => $submission_id])->select('id', 'direction', 'challenge_comment_id')->get();
+        }
         return response([
             'challengeComments' => ChallengeCommentResource::collection($challengeComments),
-            'commentCount' => $commentCount
+            'commentCount' => $commentCount,
+            'pastVotes' => $pastVotes
         ]);
+        }catch(\Exception $e){
+            return response(['status' => 'failure', 'message' => 'Need to provide submission Id'], 400);
+        }
+
 
 
     }
@@ -120,6 +134,14 @@ class ChallengeCommentController extends Controller
     public function edit(Request $request)
     {
 
+
+    }
+
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(Request $request)
+    {
         $comment = ChallengeComment::where('id', $request['postId'])->first();
         if (!$comment) return response(['error' => "Something went wrong on our end. Apologies"], 404);
 
@@ -127,18 +149,7 @@ class ChallengeCommentController extends Controller
         $comment->content = $request['content'];
         $comment->save();
 
-
         return response(['status' => 'success', 'comment' => $comment]);
-
-
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, ChallengeComment $challengeComment)
-    {
-        //
     }
 
     /**
@@ -170,6 +181,46 @@ class ChallengeCommentController extends Controller
 
 
         return response(['status' => 'success', 'message' => 'comment deleted', 'childrenLength' => $children]);
+
+    }
+    public function vote(Request $request)
+    {
+
+        $request->validate([
+            'challenge_comment_id' => ['required', 'integer', 'exists:challenge_comments,id'],
+            'submission_id' => ['required', 'exists:submissions,id'],
+            'direction' => ['required', 'integer', 'max:2', 'min:-2']
+        ]);
+        try{
+            DB::beginTransaction();
+            $user = auth()->user();
+            $userId = $user->id;
+            $pastVote = PastUserVote::where(['challenge_comment_id' => $request->challenge_comment_id, 'user_id' => $userId])->first();
+            if($pastVote){
+                if(($request->direction > 0 && $pastVote->direction > 0) || ($request->direction < 0 && $pastVote->direction < 0)){
+                    return response(['status' => 'failed', 'message' => 'already voted this direction'], 403);
+                }
+                $pastVote->direction = $request->direction;
+                $pastVote->save();
+            } else {
+                $pastVote = PastUserVote::create(['user_id' => $userId, 'challenge_comment_id' => $request->challenge_comment_id, 'direction' => $request->direction, 'submission_id' => (int)$request->submission_id]);
+            }
+            $challengeComment = ChallengeComment::where('id', $request->challenge_comment_id)->first();
+            $challengeComment->votes = $challengeComment->votes + $request->direction;
+            $challengeComment->save();
+
+            DB::table('past_user_votes')
+                ->where('user_id', $userId)
+                ->where('challenge_comment_id', $request->challenge_comment_id)
+                ->update(['direction' => $request->direction]);
+
+            DB::commit();
+            return response(['status' => 'success', 'challengeComment' => $challengeComment, 'pastVote' => $pastVote], 201);
+        }catch(\Exception $e){
+            DB::rollBack();
+            return response(['status' => 'failure', 'message' => $e->getMessage()], 403);
+        }
+
 
     }
 }

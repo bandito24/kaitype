@@ -46,3 +46,7 @@ export type StateContextType = {
   setUser: (user: UserType | null) => void
   setToken: (token: string | null) => void
 }
+export type PastVote = {
+  challenge_comment_id: number
+  direction: number
+}

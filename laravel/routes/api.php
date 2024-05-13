@@ -29,8 +29,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/createSubmission', [SubmissionController::class, 'create']);
 
     Route::post('/discussion/store', [ChallengeCommentController::class, 'store']);
-    Route::patch('/discussion/patch', [ChallengeCommentController::class, 'edit']);
+    Route::patch('/discussion/patch', [ChallengeCommentController::class, 'update']);
     Route::delete('/discussion/delete', [ChallengeCommentController::class, 'destroy']);
+    Route::patch('/discussion/vote', [ChallengeCommentController::class, 'vote']);
 
 });
 
@@ -46,7 +47,7 @@ Route::get('/submission/{id}', [SubmissionController::class, 'show']);
 Route::get('/challengeScores/{submission_id}', [ChallengeScoreController::class, 'show']);
 Route::post('/completedChallenge', [ChallengeScoreController::class, 'store']);
 
-Route::get('/discussion/{submission_id}', [ChallengeCommentController::class, 'index']);
+Route::get('/discussion', [ChallengeCommentController::class, 'index']);
 
 Route::get('/discussion/reply/index/{parentId}', [ChallengeCommentController::class, 'show']);
 

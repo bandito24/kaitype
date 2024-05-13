@@ -17,10 +17,17 @@ export async function fetchCategories(page: string) {
   }
 }
 
-export async function fetchChallengeDiscussion(challengeId: string) {
+export async function fetchChallengeDiscussion(
+  challengeId: string,
+  userId: number | null
+) {
   try {
-    const axiosResponse = await axiosClient.get(`/discussion/${challengeId}`)
-    console.log(axiosResponse)
+    const url =
+      `/discussion?submission_id=${challengeId}` +
+      (userId ? `&user_id=${userId}` : '')
+    console.log(url)
+    const axiosResponse = await axiosClient.get(url)
+    console.log(destructureData(axiosResponse))
     return destructureData(axiosResponse)
   } catch (e) {
     console.error(e)
@@ -59,10 +66,13 @@ export async function loadCommentReplies(parentId: number) {
 }
 
 export async function voteComment(payload: {
-  userId: number
-  direction: 1 | -1
+  challenge_comment_id: number
+  direction: 1 | -1 | 2 | -2
+  submission_id: string | undefined
 }) {
   console.log(payload)
+  const response = await axiosClient.patch(`/discussion/vote`, payload)
+  return destructureData(response)
 }
 
 function destructureData(response) {

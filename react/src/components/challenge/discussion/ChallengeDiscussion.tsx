@@ -21,11 +21,12 @@ export default function ChallengeDiscussion() {
   const commentContentRef = useRef<HTMLTextAreaElement>(null)
 
   const {data: loadedComments} = useQuery({
-    queryFn: () => fetchChallengeDiscussion(challengeId!),
+    queryFn: () => fetchChallengeDiscussion(challengeId!, user?.id ?? null),
     queryKey: ['challengeDiscussion', challengeId],
   })
   const comments = loadedComments?.challengeComments
   const commentCount = loadedComments?.commentCount
+  const pastVotes = loadedComments?.pastVotes
 
   const {mutateAsync: storeComment} = useMutation({
     mutationFn: postChallengeDiscussion,
@@ -122,6 +123,7 @@ export default function ChallengeDiscussion() {
                 userId={user?.id ?? null}
                 challengeId={challengeId}
                 depth={0}
+                pastVotes={pastVotes}
               />
             ))}
         </div>

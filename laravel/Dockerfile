@@ -59,7 +59,7 @@
 FROM php:8.1.0-apache
 WORKDIR /var/www/html
 
-ENV COMPOSER_ALLOW_SUPERUSER=1
+#ENV COMPOSER_ALLOW_SUPERUSER=1
 
 
 RUN a2enmod rewrite
