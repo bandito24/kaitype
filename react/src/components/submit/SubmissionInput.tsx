@@ -103,6 +103,11 @@ export default function SubmissionInput() {
             placeholder="description"
           />
         </div>
+        <CategoryInput
+          setCategoryValue={setCategoryValue}
+          setIsCustomCat={setIsCustomCat}
+          categoryValue={categoryValue}
+        />
         <div className="mb-10 grid w-full gap-1.5">
           <Label htmlFor="message">Content of your Kaitype challenge</Label>
           <Textarea
@@ -111,11 +116,11 @@ export default function SubmissionInput() {
             id="message"
           />
         </div>
-        <CategoryInput
-          setCategoryValue={setCategoryValue}
-          setIsCustomCat={setIsCustomCat}
-          categoryValue={categoryValue}
-        />
+        {/*<CategoryInput*/}
+        {/*  setCategoryValue={setCategoryValue}*/}
+        {/*  setIsCustomCat={setIsCustomCat}*/}
+        {/*  categoryValue={categoryValue}*/}
+        {/*/>*/}
         <Button className="mt-5 flex justify-end">Add submission</Button>
       </form>
     </>

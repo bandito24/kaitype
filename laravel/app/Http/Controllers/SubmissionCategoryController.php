@@ -47,8 +47,8 @@ class SubmissionCategoryController extends Controller
 
         $page = $request->input('page', 1);
         $categories = SubmissionCategory::withCount('submissions')
-            ->orderBy('submissions_count', 'desc')
-            ->paginate(2, ['name'], 'page', $page);
+            ->orderBy('submissions_count', 'desc')->get();
+//            ->paginate(2, ['name'], 'page', $page);
         return response($categories, 200);
     }
 
