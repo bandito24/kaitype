@@ -46,7 +46,47 @@ export type StateContextType = {
   setUser: (user: UserType | null) => void
   setToken: (token: string | null) => void
 }
+
 export type PastVote = {
   challenge_comment_id: number
   direction: number
+}
+
+export type CategoryChallenge = {
+  name: string
+  id: number
+  description: string
+}
+//
+export type CategoryChallengeResponse = {
+  categoryName: string
+  challenges: CategoryChallenge[]
+  categoryCount: number
+}
+export type PageObj = {
+  currentPage: number
+  lastPage: number
+}
+
+export type Selection = {
+  id: number
+  name: string
+  slug?: string
+  submissions_count?: number
+  description?: string
+  userProgress?: number
+  position?: number
+}
+
+export type Option = {
+  view: 'categories' | 'challenges'
+  title: string
+  description: string
+  selections: Selection[]
+  action: (navigate: any, param: string | number) => any
+}
+
+export type OptionsContextType = {
+  options: Option | null
+  setOptions: (options: Option | null) => void
 }

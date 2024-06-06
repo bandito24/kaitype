@@ -10,7 +10,7 @@ import ErrorList from '@/components/utilities/ErrorList.tsx'
 import {ErrorObject} from '@/lib/types.tsx'
 
 type SubmissionPayload = {
-  title: string | undefined
+  name: string | undefined
   description: string | undefined
   category: string | undefined
   isCustomCategory: boolean
@@ -44,7 +44,7 @@ export default function SubmissionInput() {
     }
 
     const payload: SubmissionPayload = {
-      title: title,
+      name: title,
       description: description,
       category: categoryValue,
       isCustomCategory: isCustomCat,
@@ -63,7 +63,6 @@ export default function SubmissionInput() {
     }
     if (errorsExist) return
 
-    console.log(payload)
     try {
       const response = await axiosClient.post('/createSubmission', payload)
       console.log(response)
@@ -116,11 +115,7 @@ export default function SubmissionInput() {
             id="message"
           />
         </div>
-        {/*<CategoryInput*/}
-        {/*  setCategoryValue={setCategoryValue}*/}
-        {/*  setIsCustomCat={setIsCustomCat}*/}
-        {/*  categoryValue={categoryValue}*/}
-        {/*/>*/}
+
         <Button className="mt-5 flex justify-end">Add submission</Button>
       </form>
     </>

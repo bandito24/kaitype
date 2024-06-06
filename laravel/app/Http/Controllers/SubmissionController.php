@@ -11,7 +11,7 @@ use Illuminate\Http\Request;
 class SubmissionController extends Controller
 {
     public function show($id){
-         $submission = Submission::select('title', 'content', 'id', 'description', 'char_count')
+         $submission = Submission::select('name', 'content', 'id', 'description', 'char_count')
             ->where('id', $id)
             ->first();
 
@@ -24,6 +24,7 @@ class SubmissionController extends Controller
         $previousResults->formatMilliseconds();
         $transformedSubmissions = ChallengeScoreResource::collection($previousResults);
 
+
         return response([
             'submission' => $submission,
             'previousResults' => $transformedSubmissions
@@ -32,7 +33,7 @@ class SubmissionController extends Controller
     public function create(Request $request)
     {
         $attributes = $request->validate([
-            'title' => ['required', 'max: 20'],
+            'name' => ['required', 'max: 20'],
             'description' => ['required', 'max: 97'],
             'category' => ['required', 'max: 20'],
             'content' => ['required'],
@@ -48,7 +49,7 @@ class SubmissionController extends Controller
             if($submissionCategory) return $this->failureResponse(['Creation Failure', ['This Category Already Exists']]);
             $newCategory = SubmissionCategory::create([
                 'name' => $attributes['category'],
-                'slug' => strtolower(urlencode($attributes['title'])),
+                'slug' => strtolower(urlencode($attributes['name'])),
                 'default_category' => false,
                 'created_by_user' => $userId,
                 'char_count' => $attributes['charCount']
@@ -62,7 +63,7 @@ class SubmissionController extends Controller
             'user_id' => $userId,
             'description' => $attributes['description'],
             'submission_category_id' => $submissionCategoryId,
-            'title' => $attributes['title'],
+            'name' => $attributes['name'],
             'content' => $attributes['content'],
             'char_count' => $attributes['charCount']
         ]);

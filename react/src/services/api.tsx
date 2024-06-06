@@ -7,9 +7,32 @@ type newComment = {
 }
 
 export async function fetchCategories(page: string) {
+  const requestUrl = `/categories?page=${page}`
   try {
-    const axiosResponse = await axiosClient.get(`/categories?page=${page}`)
+    const axiosResponse = await axiosClient.get(requestUrl)
     if (axiosResponse.status === 200) {
+      console.log('response', axiosResponse.data)
+      return axiosResponse.data
+    }
+  } catch (e) {
+    console.log(e)
+  }
+}
+
+export async function fetchCategoryChallenges({
+  category,
+  page,
+}: {
+  category: string | null
+  page: string
+}) {
+  if (!category) throw new Error('No category input for the request')
+  try {
+    const axiosResponse = await axiosClient.get(
+      `/categories/${category}?page=${page}`
+    )
+    if (axiosResponse.status === 200) {
+      console.log('challenges response:', axiosResponse.data.categoryChallenges)
       return axiosResponse.data
     }
   } catch (e) {

@@ -19,7 +19,7 @@ class SubmissionFactory extends Factory
         return [
             'user_id' => 2,
             'submission_category_id' => rand(1, 10),
-            'title' => $this->faker->words(3, true),
+            'name' => $this->faker->words(3, true),
             'description' => $this->faker->sentence(10),
             'content' => $this->faker->paragraph(20),
             'created_at' => now()

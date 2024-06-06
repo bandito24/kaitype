@@ -14,4 +14,7 @@ class Submission extends Model
     public function comments(){
         return $this->hasMany(ChallengeComment::class, 'submission_id', 'id');
     }
+    public function category(){
+        return $this->belongsTo(SubmissionCategory::class, 'submission_category_id', 'id');
+    }
 }

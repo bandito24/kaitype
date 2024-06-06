@@ -11,7 +11,7 @@ type ChallengeProgress = {
 type Challenge = string[]
 
 type ChallengeContent = {
-  title: string
+  name: string
   description: string
   content: string //json
   id: number

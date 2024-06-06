@@ -43,7 +43,7 @@ class SubmissionSeeder extends Seeder
 
                     $subData = array_values(array_filter($subData));
 
-                    $header['title'] = trim($subData[0]);
+                    $header['name'] = trim($subData[0]);
                     $header['description'] = trim($subData[1]);
 
                     $formattedMetaData[] = $header;
@@ -70,7 +70,7 @@ class SubmissionSeeder extends Seeder
 
                 foreach ($formattedMetaData as $meta) {
                     Submission::create([
-                        'title' => $meta['title'],
+                        'name' => $meta['name'],
                         'description' => $meta['description'],
                         'user_id' => 1,
                         'submission_category_id' => $category->id,

@@ -91,6 +91,10 @@ module.exports = {
         fadeIn: 'fadeIn 0.5s ease-in-out',
         fadeOut: 'fadeOut 0.5s ease-in-out 1 forwards',
       },
+      gridTemplateColumns: {
+        // Define a custom grid template that uses minmax
+        'fill-200': 'repeat(auto-fill, minmax(200px, 1fr))',
+      },
     },
   },
   plugins: [require('tailwindcss-animate')],

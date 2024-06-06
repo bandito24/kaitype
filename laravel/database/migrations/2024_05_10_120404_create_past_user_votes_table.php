@@ -19,9 +19,10 @@ return new class extends Migration
             $table->foreignId('challenge_comment_id')->constrained()->cascadeOnDelete();
             $table->foreignId('submission_id')->constrained()->cascadeOnDelete();
             $table->timestamp('created_at')->default(DB::raw('CURRENT_TIMESTAMP'));
+            $table->tinyInteger('direction');
 
             $table->index(['user_id', 'submission_id']);
-            DB::statement('ALTER TABLE votes ADD CONSTRAINT chk_direction CHECK (direction IN (1, -1))');
+//            DB::statement('ALTER TABLE votes ADD CONSTRAINT chk_direction CHECK (direction IN (1, -1))');
         });
     }
 

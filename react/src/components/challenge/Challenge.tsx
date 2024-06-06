@@ -11,7 +11,7 @@ type ChallengeMetadata = {
 }
 
 type ChallengeContent = {
-  title: string
+  name: string
   description: string
   content: string //json
   id: number

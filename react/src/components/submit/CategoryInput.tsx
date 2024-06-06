@@ -42,21 +42,12 @@ export default function CategoryInput({
     [] | SubmissionOption[]
   >([])
 
-  // function reducer(state, action) {
-  //   if (action.type === 'incremented_age') {
-  //     return {
-  //       age: state.age + 1,
-  //     }
-  //   }
-  //   throw Error('Unknown action.')
-  // }
-  //
-  // const [state, dispatch] = useReducer(reducer, {age: 32})
-
   useEffect(() => {
     async function fetchCategories() {
       try {
-        const axiosResponse = await axiosClient.get('/categories')
+        const axiosResponse = await axiosClient.get(
+          '/categories?categoryList=true'
+        )
         if (axiosResponse.status === 200) {
           const categories: Array<RetrievedCategory> = axiosResponse.data
           console.log('cat', axiosResponse.data)

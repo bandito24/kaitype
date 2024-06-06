@@ -35,6 +35,7 @@ const router = createBrowserRouter([
           {
             path: ':category',
             element: <ChallengesList />,
+            // element: <CategoriesList />,
           },
         ],
       },

@@ -60,7 +60,7 @@ export default function ChallengeCompletedResults({
 
   return (
     challengeResults && (
-      <div className="absolute inset-0 z-50 mx-auto my-auto w-full max-w-md rounded-lg border border-gray-200 bg-white p-4 shadow dark:border-gray-700 dark:bg-gray-800 sm:p-8">
+      <div className="absolute inset-0 z-50 mx-auto my-auto w-full max-w-md overflow-scroll rounded-lg border border-gray-200 bg-white p-4 shadow dark:border-gray-700 dark:bg-gray-800 sm:p-8">
         <div className="mb-4 flex flex-col items-center justify-between">
           <h5 className="text-xl font-bold leading-none text-gray-900 dark:text-white">
             Nice job! You finished with {challengeResults.merit} merit.

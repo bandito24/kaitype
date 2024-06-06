@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ChallengeScore;
 use App\Models\Submission;
 use App\Models\SubmissionCategory;
 use Illuminate\Http\Request;
@@ -20,36 +21,101 @@ class SubmissionCategoryController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function show(Request $request, $slug){
+    public function show(Request $request, $slug)
+    {
         $page = $request->input('page', 1);
         $category = SubmissionCategory::where('slug', $slug)->first();
 
         $categoryCount = Submission::where('submission_category_id', $category->id)->count();
 
         $categoryChallenges = Submission::where('submission_category_id', $category->id)
-        ->orderBy('created_at', 'desc')
-        ->paginate(2, ['title', 'id', 'description'], 'page', $page)
-        ;
+            ->orderBy('created_at', 'desc')
+            ->paginate(10, ['name', 'id', 'description'], 'page', $page);
+
+
+        $user = auth('sanctum')->user() ?? null;
+        if ($user) {
+            $userId = $user->id;
+            $submissionIds = $categoryChallenges->getCollection()->pluck('id');
+            $userScores = ChallengeScore::whereIn('submission_id', $submissionIds)
+                ->where('user_id', $userId)
+                ->select('submission_id')
+                ->get();
+            if ($userScores) {
+                $allScores = $userScores->map(fn($query) => ChallengeScore::where('submission_id', $query->submission_id)
+                    ->select('merit', 'user_id', 'submission_id', 'milliseconds')
+                    ->orderBy('merit', 'desc')
+                    ->orderBy('milliseconds', 'asc')
+                    ->get());
+                $position = $allScores->mapWithKeys(function ($score) use ($userId, $allScores) {
+                    $userRank = ($score->search(fn($val) => $val->user_id === $userId)) + 1;
+                    $submissionId = $score->first()->submission_id;
+                    return [$submissionId => $userRank !== false ? $userRank : null];
+                });
+                $challenges = $categoryChallenges->map(function ($category) use ($position) {
+                    if ($position->has($category->id)) {
+                        $category->position = $position->get($category->id); // Add a new property to the category object
+                    }
+                    return $category; // Return the modified category
+                });
+                $categoryChallenges->setCollection($challenges);
+            }
+
+        }
+
+
         return response([
             'categoryChallenges' => $categoryChallenges,
             'categoryName' => $category->name,
-            'categoryCount' => $categoryCount
+            'categoryCount' => $categoryCount,
         ], 200);
-
 
 
     }
 
 
-
     public function index(Request $request)
     {
+        if ($request->has('categoryList')) {
+            $categories = SubmissionCategory::withCount('submissions')
+                ->orderBy('submissions_count', 'desc')->get();
+            return response($categories, 200);
+        }
 
         $page = $request->input('page', 1);
         $categories = SubmissionCategory::withCount('submissions')
-            ->orderBy('submissions_count', 'desc')->get();
-//            ->paginate(2, ['name'], 'page', $page);
+            ->orderBy('submissions_count', 'desc')
+            ->paginate(10, ['name'], 'page', $page);
+
+
+        $user = auth('sanctum')->user() ?? null;
+        if ($user) {
+            $categoryIds = $categories->pluck('id');
+            $pastSubmissions = ChallengeScore::select('submission_id', 'user_id')
+                ->with(['submission' => fn($query) => $query->select('id', 'submission_category_id as category_id')
+                    ->whereIn('submission_category_id', $categoryIds)
+                ])
+                ->where('user_id', $user->id)
+                ->get();
+            $pastSubmissions = $pastSubmissions->pluck('submission.category_id');
+            $result = [];
+            $pastSubmissions->each(function ($val) use (&$result) {
+                if (isset($result[$val])) {
+                    $result[$val]++;
+                } else {
+                    $result[$val] = 1;
+                }
+            });
+            $modified = $categories->getCollection()->map(fn($val) => tap($val, fn($v) => $v->userProgress = $result[$val->id] ?? 0));
+
+            $categories->setCollection($modified);
+        }
+
+
         return response($categories, 200);
+//        return response($userId, 200);
+
+
     }
 
     /**
@@ -58,7 +124,7 @@ class SubmissionCategoryController extends Controller
     public function create(Request $request)
     {
         $attributes = $request->validate([
-            'title' => ['required', 'max: 20'],
+            'name' => ['required', 'max: 20'],
             'description' => ['required', 'max: 30'],
             'category' => ['required', 'max: 20'],
             'content' => ['required'],
@@ -69,24 +135,24 @@ class SubmissionCategoryController extends Controller
         $submissionCategory = SubmissionCategory::where('name', $attributes['category'])->first();
 
 
-        if($attributes['isCustomCategory']){
-            if($submissionCategory) return $this->failureResponse(['Creation Failure', ['This Category Already Exists']]);
+        if ($attributes['isCustomCategory']) {
+            if ($submissionCategory) return $this->failureResponse(['Creation Failure', ['This Category Already Exists']]);
             $newCategory = SubmissionCategory::create([
                 'name' => $attributes['category'],
-                'slug' => strtolower(urlencode($attributes['title'])),
+                'slug' => strtolower(urlencode($attributes['name'])),
                 'default_category' => false,
                 'created_by_user' => $userId
             ]);
             $submissionCategoryId = $newCategory->id;
         } else {
-            if(!$submissionCategory) return $this->failureResponse(['Submit Failure', ['This Category Does Not Exist']]);
+            if (!$submissionCategory) return $this->failureResponse(['Submit Failure', ['This Category Does Not Exist']]);
             $submissionCategoryId = $submissionCategory->id;
         }
         $newSubmission = Submission::create([
             'user_id' => $userId,
             'description' => $attributes['description'],
             'submission_category_id' => $submissionCategoryId,
-            'title' => $attributes['title'],
+            'name' => $attributes['name'],
             'content' => $attributes['content']
         ]);
 

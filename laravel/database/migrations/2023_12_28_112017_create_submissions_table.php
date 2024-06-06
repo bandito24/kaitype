@@ -17,7 +17,7 @@ return new class extends Migration
             $table->foreignId('user_id');
             $table->foreignId('submission_category_id')->constrained()->cascadeOnDelete();
 
-            $table->text('title');
+            $table->text('name');
             $table->text('content');
             $table->text('description');
             $table->integer('char_count');

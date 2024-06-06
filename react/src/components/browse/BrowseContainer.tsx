@@ -1,14 +1,14 @@
-import {Outlet} from "react-router-dom";
+import {Outlet} from 'react-router-dom'
+import {OptionsProvider} from '@/components/browse/OptionsContext.tsx'
 
 export default function BrowseContainer() {
-
-    return (
-        <div>
-            <section className="text-gray-600 body-font mt-20 animate-fadeIn">
-
-                <Outlet />
-
-            </section>
-        </div>
-    )
+  return (
+    <OptionsProvider>
+      <div>
+        <section className="body-font mt-20 animate-fadeIn text-gray-600">
+          <Outlet />
+        </section>
+      </div>
+    </OptionsProvider>
+  )
 }
