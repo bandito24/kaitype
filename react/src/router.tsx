@@ -6,6 +6,7 @@ import CategoriesList from '@/components/browse/CategoriesList.tsx'
 import BrowseContainer from '@/components/browse/BrowseContainer.tsx'
 import Challenge from '@/components/challenge/Challenge.tsx'
 import ChallengeDiscussion from '@/components/challenge/discussion/ChallengeDiscussion.tsx'
+import {ChallengeProvider} from '@/components/challenge/ChallengeContext.tsx'
 
 const router = createBrowserRouter([
   {
@@ -14,7 +15,11 @@ const router = createBrowserRouter([
     children: [
       {
         path: '/challenge/:id',
-        element: <Challenge />,
+        element: (
+          <ChallengeProvider>
+            <Challenge />
+          </ChallengeProvider>
+        ),
       },
       {
         path: '/challenge/:id/discuss',

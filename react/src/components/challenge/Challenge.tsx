@@ -1,88 +1,59 @@
 import {useParams} from 'react-router-dom'
-import {useEffect, useState} from 'react'
+import {useEffect} from 'react'
 import axiosClient from '@/services/axios-client.tsx'
-import TypeWindow from '@/components/challenge/TypeWindow.tsx'
-import ChallengeRanking from '@/components/challenge/ChallengeRanking.tsx'
-import {PreviousCompetitorType} from '@/lib/types.tsx'
 
-type ChallengeMetadata = {
-  submission: ChallengeContent
-  previousResults: PreviousCompetitorType[]
-}
+import {
+  useChallengeContext,
+} from '@/components/challenge/ChallengeContext.tsx'
+import {useQuery} from '@tanstack/react-query'
+import ChallengeTool from '@/components/utilities/ChallengeTool.tsx'
+import ActiveTyping from '@/components/challenge/ActiveTyping.tsx';
 
-type ChallengeContent = {
-  name: string
-  description: string
-  content: string //json
-  id: number
-  char_count: number
-}
 
 export default function Challenge() {
-  const [challengeMetadata, setChallengeMetadata] =
-    useState<null | ChallengeMetadata>()
-  const [completed, setCompleted] = useState<boolean>(false)
-  const [inProgress, setInProgress] = useState<boolean>(false)
-  const [allWeightedLevels, setAllWeightedLevels] = useState<null | {
-    [key: string]: number
-  }>(null)
-  const [currentWeightedLevel, setCurrentWeightedLevel] = useState<number>(1)
-  const [score, setScore] = useState<number>(0)
-  const {id} = useParams()
+  const {id: challengeId} = useParams()
 
-  function calculateWeightedLevels(charCount: number) {
-    const levelCount = Math.floor(charCount / 30)
-    const levels: {[key: string]: number} = {}
-    for (let i = 1; i <= levelCount; i++) {
-      levels[i] = levelCount - i + 1
+
+  const {challenge, setChallenge} = useChallengeContext()
+
+  const {
+    isSuccess,
+    data: challengeData,
+    // isError,
+  } = useQuery({
+    queryKey: ['challenge', challengeId],
+    queryFn: async () => {
+      console.log('fetched')
+      return (await axiosClient.get(`/submission/${challengeId}`))?.data.submission
     }
-    if (levelCount === 0) levels['1'] = 1
-    return levels
-  }
 
+  })
   useEffect(() => {
-    async function fetchData() {
-      try {
-        const challengeResponse = await axiosClient.get(`/submission/${id}`)
-        console.log(challengeResponse)
-        setChallengeMetadata(challengeResponse.data)
-        const allWeightsForLevel = calculateWeightedLevels(
-          challengeResponse.data.submission.char_count
-        )
-        setAllWeightedLevels(allWeightsForLevel)
-        setCurrentWeightedLevel(1)
-      } catch (e) {
-        console.error(e)
-      }
-    }
-
-    fetchData()
-  }, [])
+    console.log(challengeData)
+    if (!challengeData) return
+    const challengeContent = new ChallengeTool().formatChallengeContentJson(
+      challengeData.content
+    )
+    const levelWeights = (new ChallengeTool()).calculateWeightedLevels(challengeData.char_count)
+    setChallenge({
+      currentWeightedLevelKey: 1,
+      allWeightedLevels: levelWeights,
+      inProgress: true,
+      completed: false,
+      name: challengeData.name,
+      id: challengeData.id,
+      challengeProgress: {
+        currentIndex: 0,
+        totalIndex: challengeContent.length - 1,
+      },
+      challengeContent: challengeContent,
+    })
+  }, [isSuccess, challengeData])
 
   return (
     <div className="flex justify-between">
-      {challengeMetadata && (
-        <>
-          <ChallengeRanking
-            previousCompetitors={challengeMetadata.previousResults}
-            challengeId={challengeMetadata.submission.id}
-            completed={completed}
-            inProgress={inProgress}
-            setCurrentWeightedLevel={setCurrentWeightedLevel}
-            currentWeightedLevel={currentWeightedLevel}
-            allWeightedLevels={allWeightedLevels}
-            score={score}
-          />
-          <TypeWindow
-            challengeContent={challengeMetadata.submission}
-            completed={completed}
-            setCompleted={setCompleted}
-            setInProgress={setInProgress}
-            setScore={setScore}
-            allWeightedLevels={allWeightedLevels}
-            currentWeightedLevel={currentWeightedLevel}
-          />
-        </>
+      {isSuccess && challenge && challenge.challengeContent.length > 0 && (
+        <ActiveTyping />
       )}
     </div>
   )

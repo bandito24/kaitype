@@ -1,18 +1,17 @@
 import {useEffect} from 'react'
-import OptionsHeader from '@/components/browse/OptionsHeader.tsx'
 import OptionsContent from '@/components/browse/OptionsContent.tsx'
 import {useOptionsContext} from './OptionsContext'
-import {useQuery} from '@tanstack/react-query'
 import {fetchCategories} from '@/services/api.tsx'
+import usePaginatedQuery from '@/hooks/usePaginatedQuery.tsx'
 
 export default function CategoriesList() {
-  const {setOptions} = useOptionsContext()
+  const {options, setOptions} = useOptionsContext()
 
-  // Query for categories if no category is selected
-  const {data: categories, isSuccess: isCategoriesSuccess} = useQuery({
-    queryKey: ['categories', '1'],
-    queryFn: () => fetchCategories('1'),
-  })
+  const {isSuccess: isCategoriesSuccess, data: categories} = usePaginatedQuery(
+    {view: 'categories'},
+    fetchCategories,
+    true
+  )
 
   useEffect(() => {
     if (categories && isCategoriesSuccess) {
@@ -29,11 +28,13 @@ export default function CategoriesList() {
 
   return (
     <div>
-      {categories && (
-        <div>
-          <OptionsHeader />
-          <OptionsContent />
-        </div>
+      {options && (
+        <>
+          <OptionsContent
+            data={categories}
+            fetchFunction={fetchCategories}
+          />
+        </>
       )}
     </div>
   )

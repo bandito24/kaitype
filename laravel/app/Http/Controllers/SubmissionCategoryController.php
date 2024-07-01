@@ -85,7 +85,7 @@ class SubmissionCategoryController extends Controller
         $page = $request->input('page', 1);
         $categories = SubmissionCategory::withCount('submissions')
             ->orderBy('submissions_count', 'desc')
-            ->paginate(10, ['name'], 'page', $page);
+            ->paginate(2, ['name'], 'page', $page);
 
 
         $user = auth('sanctum')->user() ?? null;
@@ -113,7 +113,7 @@ class SubmissionCategoryController extends Controller
 
 
         return response($categories, 200);
-//        return response($userId, 200);
+
 
 
     }

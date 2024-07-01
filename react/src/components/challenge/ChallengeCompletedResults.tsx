@@ -1,6 +1,6 @@
 import {useEffect, useState} from 'react'
 import axiosClient from '@/services/axios-client.tsx'
-import TimeFormatter from '@/components/utilities/TimeFormatter.tsx'
+import ChallengeTool from '@/components/utilities/ChallengeTool.tsx'
 import {PreviousCompetitorType} from '@/lib/types.tsx'
 import PreviousCompetitor from '@/components/challenge/PreviousCompetitor.tsx'
 import {Button} from '@/components/ui/button.tsx'
@@ -56,7 +56,7 @@ export default function ChallengeCompletedResults({
     postResult()
   }, [])
 
-  const timeTool = new TimeFormatter()
+  const timeTool = new ChallengeTool()
 
   return (
     challengeResults && (

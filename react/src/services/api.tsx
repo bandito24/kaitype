@@ -7,11 +7,21 @@ type newComment = {
 }
 
 export async function fetchCategories(page: string) {
+  const baseLinkUrl = import.meta.env.VITE_API_BASE_URL
+  const publicUrl = import.meta.env.VITE_PUBLIC_URL
   const requestUrl = `/categories?page=${page}`
   try {
     const axiosResponse = await axiosClient.get(requestUrl)
     if (axiosResponse.status === 200) {
-      console.log('response', axiosResponse.data)
+      console.log('challenges response: ', axiosResponse.data)
+      axiosResponse.data.links.forEach((link) => {
+        if (link.url)
+          link.url = link.url.replace(
+            baseLinkUrl + 'categories',
+            publicUrl + 'browse'
+          )
+      })
+
       return axiosResponse.data
     }
   } catch (e) {
@@ -19,20 +29,14 @@ export async function fetchCategories(page: string) {
   }
 }
 
-export async function fetchCategoryChallenges({
-  category,
-  page,
-}: {
-  category: string | null
-  page: string
-}) {
+export async function fetchCategoryChallenges(page: string, category: string) {
   if (!category) throw new Error('No category input for the request')
   try {
     const axiosResponse = await axiosClient.get(
       `/categories/${category}?page=${page}`
     )
     if (axiosResponse.status === 200) {
-      console.log('challenges response:', axiosResponse.data.categoryChallenges)
+      console.log('moop response:', axiosResponse.data)
       return axiosResponse.data
     }
   } catch (e) {

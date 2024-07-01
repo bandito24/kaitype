@@ -1,13 +1,12 @@
-import {useQuery} from '@tanstack/react-query'
 import {fetchCategoryChallenges} from '@/services/api.tsx'
 import {useNavigate, useParams} from 'react-router-dom'
 import {useEffect} from 'react'
 import {useOptionsContext} from '@/components/browse/OptionsContext.tsx'
-import OptionsHeader from '@/components/browse/OptionsHeader.tsx'
 import OptionsContent from '@/components/browse/OptionsContent.tsx'
+import usePaginatedQuery from '@/hooks/usePaginatedQuery.tsx'
 
 export default function ChallengesList() {
-  const {setOptions} = useOptionsContext()
+  const {setOptions, options} = useOptionsContext()
   const {category} = useParams()
   const navigate = useNavigate()
 
@@ -16,15 +15,15 @@ export default function ChallengesList() {
     navigate('/browse')
   }
 
-  const request = {category: category ?? null, page: '1'}
-  const {data: challenges, isSuccess: isChallengesSuccess} = useQuery({
-    queryKey: ['challenges', request],
-    queryFn: () => fetchCategoryChallenges(request),
-    enabled: !!category,
-  })
+  const {isSuccess: isChallengesSuccess, data: challenges} = usePaginatedQuery(
+    {view: category ?? 'category'},
+    fetchCategoryChallenges,
+    true
+  )
 
   useEffect(() => {
-    if (challenges && isChallengesSuccess && category) {
+    if (challenges && isChallengesSuccess) {
+      console.log(challenges)
       setOptions({
         view: 'challenges',
         title: `Select a ${challenges.categoryName} challenge!`,
@@ -38,10 +37,12 @@ export default function ChallengesList() {
 
   return (
     <div>
-      {challenges && (
+      {options?.view === 'challenges' && (
         <div>
-          <OptionsHeader />
-          <OptionsContent />
+          <OptionsContent
+            fetchFunction={fetchCategoryChallenges}
+            data={challenges.categoryChallenges}
+          />
         </div>
       )}
     </div>

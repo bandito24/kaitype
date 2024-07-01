@@ -1,9 +1,9 @@
-import TimeFormatter from '@/components/utilities/TimeFormatter.tsx'
+import ChallengeTool from '@/components/utilities/ChallengeTool.tsx'
 import {describe, it, expect} from 'vitest'
 
-const timeTool = new TimeFormatter()
+const timeTool = new ChallengeTool()
 
-describe('TimeFormatter correctly returns values', () => {
+describe('ChallengeTool correctly returns values', () => {
   it('parses raw milliseconds into a stopwatch string', () => {
     const msString = timeTool.formatMilliseconds(559)
     expect(msString).toBe('00:05:59')

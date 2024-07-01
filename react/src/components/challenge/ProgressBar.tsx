@@ -1,27 +1,20 @@
-import {useEffect, useState} from 'react'
+import React, {useEffect, useState} from 'react'
+import {useChallengeContext} from '@/components/challenge/ChallengeContext.tsx'
 
-type ChallengeProgress = {
-  currentIndex: number
-  totalIndex: number
-}
-
-type Props = {
-  challengeProgression: ChallengeProgress
-  completed: boolean
-}
-
-export default function ProgressBar({challengeProgression, completed}: Props) {
+export default function ProgressBar() {
+  const {challenge} = useChallengeContext()
+  const challengeProgress = React.useMemo(
+    () => challenge?.challengeProgress,
+    [challenge?.challengeProgress]
+  )
   const [progressValue, setProgressValue] = useState<number>(0)
 
   useEffect(() => {
-    setProgressValue(
-      completed
-        ? 100
-        : (challengeProgression.currentIndex /
-            challengeProgression.totalIndex) *
-            100
-    )
-  }, [challengeProgression, completed])
+    const progress = !challenge.completed ? Math.round((
+        challengeProgress!.currentIndex / (challengeProgress!.totalIndex + 1)
+      ) * 100) : 100
+    setProgressValue(progress)
+  }, [challengeProgress, challenge.completed])
 
   return (
     <div className="mb-24">

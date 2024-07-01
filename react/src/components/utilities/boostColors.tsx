@@ -3,6 +3,7 @@ type BoostColors = {
 }
 
 export const boostColorValues: BoostColors = {
+  0: 'RGB(255,255,255)',
   1: 'RGB(204,0,102)',
   2: 'RGB(204,0,204)',
   4: 'RGB(102,0,204)',

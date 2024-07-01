@@ -88,5 +88,21 @@ export type Option = {
 
 export type OptionsContextType = {
   options: Option | null
-  setOptions: (options: Option | null) => void
+  setOptions: React.Dispatch<React.SetStateAction<Option | null>>
+}
+
+export type Challenge = {
+  challengeContent: string[]
+  currentWeightedLevelKey: number
+  allWeightedLevels: {[key: string]: number}
+  challengeProgress: {currentIndex: number; totalIndex: number}
+  inProgress: boolean
+  completed: boolean
+  name: string
+  id: number
+}
+export type ChallengeContextType = {
+  challenge: Challenge
+  // setChallenge: (challenge: Challenge | null) => void
+  setChallenge: React.Dispatch<React.SetStateAction<Challenge>>
 }
